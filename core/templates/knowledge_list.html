@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Knowledge Base</h2>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form method="get" class="d-flex">
+            <input type="text" name="q" class="form-control me-2" placeholder="Search questions/answers" value="{{ query }}">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <form method="get">
+            <select name="category" class="form-select" onchange="this.form.submit()">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    {% if user.role == 'supervisor' %}
+        <div class="col-md-2">
+            <a href="{% url 'knowledge_create' %}" class="btn btn-success">Add Entry</a>
+        </div>
+    {% endif %}
+</div>
+<div class="accordion" id="knowledgeAccordion">
+    {% for entry in knowledge %}
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ entry.kb_id }}">
+                {{ entry.question }} ({{ entry.category }})
+            </button>
+        </h2>
+        <div id="collapse{{ entry.kb_id }}" class="accordion-collapse collapse" data-bs-parent="#knowledgeAccordion">
+            <div class="accordion-body">
+                {{ entry.answer|linebreaks }}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p>No knowledge entries found.</p>
+    {% endfor %}
+</div>
+{% endblock %}

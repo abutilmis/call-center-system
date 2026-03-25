@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Announcements</h2>
+<ul class="list-group">
+    {% for ann in announcements %}
+        <li class="list-group-item">
+            <h5>{{ ann.title }}</h5>
+            <small class="text-muted">Posted by {{ ann.posted_by.username }} on {{ ann.timestamp|date:"Y-m-d H:i" }}</small>
+            <p class="mt-2">{{ ann.description|linebreaks }}</p>
+        </li>
+    {% empty %}
+        <li class="list-group-item">No announcements yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

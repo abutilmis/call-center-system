@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Dashboard</h2>
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">Entities</div>
+            <div class="card-body">
+                <h5 class="card-title">{{ entity_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-header">Pending Corrections</div>
+            <div class="card-body">
+                <h5 class="card-title">{{ pending_corrections }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-header">Knowledge Base Entries</div>
+            <div class="card-body">
+                <h5 class="card-title">{{ knowledge_count }}</h5>
+            </div>
+        </div>
+    </div>
+</div>
+<h3>Recent Announcements</h3>
+<ul class="list-group">
+    {% for ann in announcements %}
+        <li class="list-group-item">
+            <strong>{{ ann.title }}</strong> - {{ ann.timestamp|date:"Y-m-d H:i" }}<br>
+            {{ ann.description|truncatewords:30 }}
+        </li>
+    {% empty %}
+        <li class="list-group-item">No announcements yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

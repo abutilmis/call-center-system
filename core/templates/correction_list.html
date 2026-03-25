@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Correction Requests</h2>
+<a href="{% url 'correction_create' %}" class="btn btn-primary mb-3">New Request</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Entity</th>
+            <th>Field</th>
+            <th>New Value</th>
+            <th>Status</th>
+            <th>Agent</th>
+            <th>Created</th>
+            {% if user.role == 'supervisor' %}<th>Action</th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for cr in corrections %}
+        <tr>
+            <td>{{ cr.request_id }}</td>
+            <td>{{ cr.entity.name }}</td>
+            <td>{{ cr.field_to_correct }}</td>
+            <td>{{ cr.new_value }}</td>
+            <td>{{ cr.status|title }}</td>
+            <td>{{ cr.agent.username }}</td>
+            <td>{{ cr.created_at|date:"Y-m-d H:i" }}</td>
+            {% if user.role == 'supervisor' and cr.status == 'pending' %}
+                <td><a href="{% url 'correction_approve' cr.pk %}" class="btn btn-sm btn-warning">Review</a></td>
+            {% endif %}
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">No correction requests.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
