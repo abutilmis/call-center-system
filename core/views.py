@@ -4,6 +4,18 @@ from django.contrib import messages
 from django.db.models import Q
 from .models import Entity, CorrectionRequest, KnowledgeBase, Announcement
 from .forms import EntityForm, CorrectionRequestForm, KnowledgeBaseForm, AnnouncementForm
+from .forms import AgentRegistrationForm
+
+def register(request):
+    if request.method == 'POST':
+        form = AgentRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Account created successfully. Please log in.')
+            return redirect('login')
+    else:
+        form = AgentRegistrationForm()
+    return render(request, 'registration/register.html', {'form': form})
 
 def supervisor_required(view_func):
     """Decorator to restrict access to supervisors only."""
