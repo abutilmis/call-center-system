@@ -35,7 +35,7 @@ class AgentRegistrationForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
-        user.role = 'agent'   # New users are agents by default
+        user.role = 'agent'
         if commit:
             user.save()
         return user
