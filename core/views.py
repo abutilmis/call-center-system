@@ -31,9 +31,11 @@ def dashboard(request):
 from django.http import JsonResponse
 from django.db.models import Q
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 @login_required
 def entity_list(request):
-    entity_type = request.GET.get('type', 'agency')  # default to agency
+    entity_type = request.GET.get('type', 'agency')
     query = request.GET.get('q', '')
 
     entities = Entity.objects.filter(entity_type=entity_type)
@@ -43,13 +45,23 @@ def entity_list(request):
             Q(name__icontains=query) | Q(phone__icontains=query) | Q(phone2__icontains=query)
         )
 
-    # For autocomplete AJAX requests
+    # AJAX autocomplete request
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         results = entities.values('entity_id', 'name', 'phone', 'phone2', 'city', 'woreda')[:20]
         return JsonResponse({'results': list(results)})
 
+    # Pagination: 20 items per page
+    paginator = Paginator(entities, 20)
+    page = request.GET.get('page')
+    try:
+        entities_page = paginator.page(page)
+    except PageNotAnInteger:
+        entities_page = paginator.page(1)
+    except EmptyPage:
+        entities_page = paginator.page(paginator.num_pages)
+
     return render(request, 'entity_list.html', {
-        'entities': entities,
+        'entities': entities_page,
         'query': query,
         'entity_type': entity_type,
     })

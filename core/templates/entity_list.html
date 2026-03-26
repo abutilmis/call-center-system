@@ -29,7 +29,7 @@
     <div class="mb-4">
         <div class="input-group">
             <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
-            <input type="text" id="searchInput" class="form-control" placeholder="Search by name or phone..." autocomplete="off">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by name or phone..." autocomplete="off" value="{{ query }}">
             <button class="btn btn-primary" id="searchBtn">Search</button>
         </div>
         <div id="autocomplete-results" class="list-group mt-2" style="display: none;"></div>
@@ -74,6 +74,37 @@
         </table>
     </div>
 
+    <!-- Pagination -->
+    {% if entities.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if entities.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&page={{ entities.previous_page_number }}">Previous</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Previous</span></li>
+            {% endif %}
+
+            {% for i in entities.paginator.page_range %}
+                {% if entities.number == i %}
+                <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?type={{ entity_type }}&q={{ query }}&page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if entities.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&page={{ entities.next_page_number }}">Next</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Next</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
     <!-- Manual entry button -->
     <div class="mt-4 text-end">
         <a href="{% url 'entity_create' %}?type={{ entity_type }}" class="btn btn-success">
@@ -83,11 +114,10 @@
 </div>
 
 <script>
-    // Live search with debounce
+    // Live search with debounce and autocomplete
     let timeout;
     const searchInput = document.getElementById('searchInput');
     const resultsDiv = document.getElementById('autocomplete-results');
-    const tableBody = document.querySelector('#entitiesTable tbody');
     const currentType = '{{ entity_type }}';
 
     function fetchResults(query) {
@@ -108,13 +138,15 @@
                     </a>
                 `).join('');
                 resultsDiv.style.display = 'block';
-                // Attach click handlers
+                // Attach click handlers: fill input and trigger search
                 document.querySelectorAll('.list-group-item').forEach(el => {
                     el.addEventListener('click', (e) => {
                         e.preventDefault();
-                        searchInput.value = el.querySelector('strong').innerText;
+                        const name = el.querySelector('strong').innerText;
+                        searchInput.value = name;
                         resultsDiv.style.display = 'none';
-                        // Optionally fill table or redirect
+                        // Trigger search
+                        window.location.href = `?type=${currentType}&q=${encodeURIComponent(name)}`;
                     });
                 });
             } else {
@@ -134,5 +166,12 @@
             window.location.href = `?type=${currentType}&q=${encodeURIComponent(query)}`;
         }
     });
+
+    // If there's a query from URL, keep it in the input
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialQuery = urlParams.get('q');
+    if (initialQuery) {
+        searchInput.value = initialQuery;
+    }
 </script>
 {% endblock %}
