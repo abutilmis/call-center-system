@@ -1,38 +1,138 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-<h2>Entities</h2>
-<div class="mb-3">
-    <form method="get" class="d-flex">
-        <input type="text" name="q" class="form-control me-2" placeholder="Search by name, phone, location" value="{{ query }}">
-        <button type="submit" class="btn btn-primary">Search</button>
-        <a href="{% url 'entity_create' %}" class="btn btn-success ms-2">Add Entity</a>
-    </form>
+<div class="dashboard">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Entities</h2>
+        {% if user.role == 'supervisor' %}
+        <a href="{% url 'upload_agencies' %}" class="btn btn-primary">
+            <i class="fas fa-upload me-2"></i>Upload Agency File
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Tabs for entity types -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link {% if entity_type == 'agency' %}active{% endif %}" href="?type=agency">Agencies</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if entity_type == 'tvet' %}active{% endif %}" href="?type=tvet">TVET</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if entity_type == 'ocss' %}active{% endif %}" href="?type=ocss">OCSS</a>
+        </li>
+    </ul>
+
+    <!-- Search bar with live autocomplete -->
+    <div class="mb-4">
+        <div class="input-group">
+            <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by name or phone..." autocomplete="off">
+            <button class="btn btn-primary" id="searchBtn">Search</button>
+        </div>
+        <div id="autocomplete-results" class="list-group mt-2" style="display: none;"></div>
+    </div>
+
+    <!-- Results table -->
+    <div class="table-responsive">
+        <table class="table table-striped modern-table" id="entitiesTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone 1</th>
+                    <th>Phone 2</th>
+                    <th>City</th>
+                    <th>Woreda</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entity in entities %}
+                <tr>
+                    <td>{{ entity.name }}</td>
+                    <td>{{ entity.phone }}</td>
+                    <td>{{ entity.phone2|default:"—" }}</td>
+                    <td>{{ entity.city|default:"—" }}</td>
+                    <td>{{ entity.woreda|default:"—" }}</td>
+                    <td>
+                        <a href="{% url 'entity_update' entity.pk %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="{% url 'entity_delete' entity.pk %}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">No {{ entity_type }} found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Manual entry button -->
+    <div class="mt-4 text-end">
+        <a href="{% url 'entity_create' %}?type={{ entity_type }}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Add New {{ entity_type|title }}
+        </a>
+    </div>
 </div>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Phone</th>
-            <th>Location</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for entity in entities %}
-        <tr>
-            <td>{{ entity.name }}</td>
-            <td>{{ entity.get_entity_type_display }}</td>
-            <td>{{ entity.phone }}</td>
-            <td>{{ entity.location }}</td>
-            <td>
-                <a href="{% url 'entity_update' entity.pk %}" class="btn btn-sm btn-warning">Edit</a>
-                <a href="{% url 'entity_delete' entity.pk %}" class="btn btn-sm btn-danger">Delete</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="5">No entities found.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+
+<script>
+    // Live search with debounce
+    let timeout;
+    const searchInput = document.getElementById('searchInput');
+    const resultsDiv = document.getElementById('autocomplete-results');
+    const tableBody = document.querySelector('#entitiesTable tbody');
+    const currentType = '{{ entity_type }}';
+
+    function fetchResults(query) {
+        if (query.length < 2) {
+            resultsDiv.style.display = 'none';
+            return;
+        }
+        fetch(`?type=${currentType}&q=${encodeURIComponent(query)}`, {
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.results && data.results.length) {
+                resultsDiv.innerHTML = data.results.map(item => `
+                    <a href="#" class="list-group-item list-group-item-action" data-id="${item.entity_id}">
+                        <strong>${item.name}</strong><br>
+                        <small>${item.phone} / ${item.phone2 || ''} | ${item.city || ''} ${item.woreda || ''}</small>
+                    </a>
+                `).join('');
+                resultsDiv.style.display = 'block';
+                // Attach click handlers
+                document.querySelectorAll('.list-group-item').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        searchInput.value = el.querySelector('strong').innerText;
+                        resultsDiv.style.display = 'none';
+                        // Optionally fill table or redirect
+                    });
+                });
+            } else {
+                resultsDiv.style.display = 'none';
+            }
+        });
+    }
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fetchResults(this.value), 300);
+    });
+
+    document.getElementById('searchBtn').addEventListener('click', function() {
+        const query = searchInput.value;
+        if (query) {
+            window.location.href = `?type=${currentType}&q=${encodeURIComponent(query)}`;
+        }
+    });
+</script>
 {% endblock %}

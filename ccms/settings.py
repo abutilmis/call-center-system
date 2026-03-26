@@ -69,6 +69,15 @@ DATABASES = {
         }
     }
 }
+import dj_database_url
+import os
+
+DATABASES = {
+    'default': dj_database_url.config(
+        default='postgresql://ccms_user:securepassword@localhost:5432/ccms_db',
+        conn_max_age=600
+    )
+}
 
 # Custom user model
 AUTH_USER_MODEL = 'core.User'

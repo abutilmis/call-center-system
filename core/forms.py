@@ -5,7 +5,10 @@ from .models import User, Entity, CorrectionRequest, KnowledgeBase, Announcement
 class EntityForm(forms.ModelForm):
     class Meta:
         model = Entity
-        fields = ['entity_type', 'name', 'phone', 'location', 'registration_id', 'additional_info']
+        fields = [
+            'entity_type', 'name', 'phone', 'phone2', 'city', 'woreda',
+            'location', 'registration_id', 'additional_info'
+        ]
         widgets = {
             'additional_info': forms.Textarea(attrs={'rows': 3}),
         }
@@ -39,3 +42,10 @@ class AgentRegistrationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+from django import forms
+
+class AgencyUploadForm(forms.Form):
+    file = forms.FileField(
+        label='Excel file',
+        help_text='Upload an Excel (.xlsx) file with columns: Name, Phone1, Phone2, City, Woreda'
+    )    

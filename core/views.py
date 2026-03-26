@@ -28,19 +28,71 @@ def dashboard(request):
     }
     return render(request, 'dashboard.html', context)
 
-# Entities
-@login_required
-def entity_list(request):
-    query = request.GET.get('q', '')
-    entities = Entity.objects.all()
-    if query:
-        entities = entities.filter(
-            Q(name__icontains=query) | Q(phone__icontains=query) | Q(location__icontains=query)
-        )
-    return render(request, 'entity_list.html', {'entities': entities, 'query': query})
+from django.http import JsonResponse
+from django.db.models import Q
 
 @login_required
+def entity_list(request):
+    entity_type = request.GET.get('type', 'agency')  # default to agency
+    query = request.GET.get('q', '')
+
+    entities = Entity.objects.filter(entity_type=entity_type)
+
+    if query:
+        entities = entities.filter(
+            Q(name__icontains=query) | Q(phone__icontains=query) | Q(phone2__icontains=query)
+        )
+
+    # For autocomplete AJAX requests
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        results = entities.values('entity_id', 'name', 'phone', 'phone2', 'city', 'woreda')[:20]
+        return JsonResponse({'results': list(results)})
+
+    return render(request, 'entity_list.html', {
+        'entities': entities,
+        'query': query,
+        'entity_type': entity_type,
+    })
+import pandas as pd
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .forms import AgencyUploadForm
+
+@login_required
+@supervisor_required
+def upload_agencies(request):
+    if request.method == 'POST':
+        form = AgencyUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = request.FILES['file']
+            try:
+                df = pd.read_excel(file)
+                required_cols = ['Name', 'Phone1', 'Phone2', 'City', 'Woreda']
+                if not all(col in df.columns for col in required_cols):
+                    messages.error(request, 'File must contain columns: Name, Phone1, Phone2, City, Woreda')
+                    return redirect('upload_agencies')
+
+                created = 0
+                for _, row in df.iterrows():
+                    Entity.objects.create(
+                        entity_type='agency',
+                        name=row['Name'],
+                        phone=row['Phone1'],
+                        phone2=row.get('Phone2', ''),
+                        city=row.get('City', ''),
+                        woreda=row.get('Woreda', ''),
+                    )
+                    created += 1
+                messages.success(request, f'{created} agencies imported successfully.')
+            except Exception as e:
+                messages.error(request, f'Error processing file: {str(e)}')
+            return redirect('entity_list')
+    else:
+        form = AgencyUploadForm()
+    return render(request, 'agency_upload.html', {'form': form})
+@login_required
 def entity_create(request):
+    initial_type = request.GET.get('type', 'agency')
     if request.method == 'POST':
         form = EntityForm(request.POST)
         if form.is_valid():
@@ -48,8 +100,8 @@ def entity_create(request):
             messages.success(request, "Entity created successfully.")
             return redirect('entity_list')
     else:
-        form = EntityForm()
-    return render(request, 'entity_form.html', {'form': form, 'title': 'Create Entity'})
+        form = EntityForm(initial={'entity_type': initial_type})
+    return render(request, 'entity_form.html', {'form': form, 'title': f'Create {initial_type.title()}'})
 
 @login_required
 def entity_update(request, pk):

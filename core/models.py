@@ -9,7 +9,7 @@ class User(AbstractUser):
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='agent')
 
-    # Fix reverse accessor clashes
+    # Override groups and user_permissions to avoid reverse accessor clashes
     groups = models.ManyToManyField(
         'auth.Group',
         related_name='core_user_groups',
@@ -31,15 +31,20 @@ class User(AbstractUser):
     def get_absolute_url(self):
         return reverse('dashboard')
 
+
 class Entity(models.Model):
     ENTITY_TYPES = (
-        ('individual', 'Individual'),
-        ('business', 'Business'),
+        ('agency', 'Agency'),
+        ('tvet', 'TVET'),
+        ('ocss', 'OCSS'),
     )
     entity_id = models.AutoField(primary_key=True)
-    entity_type = models.CharField(max_length=20, choices=ENTITY_TYPES)
+    entity_type = models.CharField(max_length=20, choices=ENTITY_TYPES, default='agency')
     name = models.CharField(max_length=200)
     phone = models.CharField(max_length=20)
+    phone2 = models.CharField(max_length=20, blank=True, null=True)          # new for agency
+    city = models.CharField(max_length=100, blank=True, null=True)           # new for agency
+    woreda = models.CharField(max_length=100, blank=True, null=True)         # new for agency
     location = models.CharField(max_length=200, blank=True)
     registration_id = models.CharField(max_length=100, blank=True)
     additional_info = models.JSONField(default=dict, blank=True)
@@ -47,7 +52,11 @@ class Entity(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.name} ({self.entity_type})"
+        return f"{self.name} ({self.get_entity_type_display()})"
+
+    def get_absolute_url(self):
+        return reverse('entity_detail', args=[self.entity_id])
+
 
 class CorrectionRequest(models.Model):
     STATUS_CHOICES = (
@@ -69,6 +78,10 @@ class CorrectionRequest(models.Model):
     def __str__(self):
         return f"Request {self.request_id} - {self.entity.name} - {self.status}"
 
+    def get_absolute_url(self):
+        return reverse('correction_detail', args=[self.request_id])
+
+
 class KnowledgeBase(models.Model):
     kb_id = models.AutoField(primary_key=True)
     question = models.CharField(max_length=500)
@@ -81,6 +94,10 @@ class KnowledgeBase(models.Model):
     def __str__(self):
         return self.question[:50]
 
+    def get_absolute_url(self):
+        return reverse('knowledge_detail', args=[self.kb_id])
+
+
 class Announcement(models.Model):
     announcement_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=200)
@@ -90,3 +107,6 @@ class Announcement(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('announcement_detail', args=[self.announcement_id])

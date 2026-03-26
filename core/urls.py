@@ -16,4 +16,5 @@ urlpatterns = [
     path('announcements/add/', views.announcement_create, name='announcement_create'),
     path('register/', views.register, name='register'),
     path('create-supervisor/', views.create_supervisor, name='create_supervisor'),
+    path('upload-agencies/', views.upload_agencies, name='upload_agencies'),
 ]
