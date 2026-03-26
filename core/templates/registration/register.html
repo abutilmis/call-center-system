@@ -3,7 +3,7 @@
 
 {% block content %}
 <style>
-    /* Page specific layout adjustments */
+    /* Professional Layout & Centering */
     body {
         background-color: #f8f9fa;
         min-height: 100vh;
@@ -11,14 +11,14 @@
         align-items: center;
         justify-content: center;
         margin: 0;
-        padding: 0;
+        padding: 1.5rem;
     }
 
-    /* Override the default Bootstrap container for login/register */
+    /* Strict Centering Overrides */
     .container.mt-5 {
         max-width: 100% !important;
         width: 100% !important;
-        margin-top: 0 !important;
+        margin: 0 !important;
         padding: 0 !important;
         display: flex;
         justify-content: center;
@@ -28,52 +28,56 @@
 
     .register-container {
         width: 100%;
-        max-width: 550px;
+        max-width: 460px;
         background: #ffffff;
-        border-radius: 1.5rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        border-radius: 1.25rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
         overflow: hidden;
-        padding: 3.5rem;
-        margin: 2rem 1rem;
-        animation: fadeIn 0.6s ease-out;
+        padding: 2.5rem;
+        margin: auto; /* Added for strict centering */
+        animation: fadeIn 0.4s ease-out;
     }
 
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
+        from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
 
     .register-header {
         text-align: center;
-        margin-bottom: 3rem;
-    }
-
-    .register-header .logo {
-        height: 48px;
         margin-bottom: 2rem;
     }
 
+    .register-header .logo {
+        height: 36px;
+        width: auto;
+        margin-bottom: 1.25rem;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     .register-header h2 {
-        font-size: 2.25rem;
-        font-weight: 800;
-        margin-bottom: 0.75rem;
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
         color: #111827;
     }
 
     .register-header p {
         color: #6b7280;
-        font-size: 1.05rem;
+        font-size: 0.95rem;
     }
 
     .input-group-custom {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
     }
 
     .input-group-custom label {
         display: block;
-        font-size: 0.875rem;
+        font-size: 0.85rem;
         font-weight: 600;
-        margin-bottom: 0.6rem;
+        margin-bottom: 0.5rem;
         color: #374151;
     }
 
@@ -83,20 +87,20 @@
 
     .input-wrapper i {
         position: absolute;
-        left: 1.25rem;
+        left: 1.1rem;
         top: 50%;
         transform: translateY(-50%);
         color: #9ca3af;
-        transition: color 0.3s;
+        font-size: 0.9rem;
     }
 
     .input-wrapper input {
         width: 100%;
-        padding: 0.875rem 1rem 0.875rem 3.25rem;
+        padding: 0.75rem 1rem 0.75rem 2.85rem;
         border: 1px solid #e5e7eb;
-        border-radius: 1rem;
-        font-size: 1rem;
-        transition: all 0.3s;
+        border-radius: 0.75rem;
+        font-size: 0.95rem;
+        transition: all 0.2s;
         background-color: #f9fafb;
     }
 
@@ -104,42 +108,32 @@
         outline: none;
         border-color: #3170b5;
         background-color: #fff;
-        box-shadow: 0 0 0 4px rgba(49, 112, 181, 0.1);
-    }
-
-    .input-wrapper input:focus + i {
-        color: #3170b5;
+        box-shadow: 0 0 0 3px rgba(49, 112, 181, 0.1);
     }
 
     .btn-register {
         width: 100%;
-        padding: 1rem;
+        padding: 0.85rem;
         background-color: #3170b5;
         color: white;
         border: none;
-        border-radius: 1rem;
-        font-size: 1.125rem;
+        border-radius: 0.75rem;
+        font-size: 1rem;
         font-weight: 700;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 6px -1px rgba(49, 112, 181, 0.2);
+        transition: all 0.2s;
         margin-top: 1rem;
     }
 
     .btn-register:hover {
         background-color: #255a91;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(49, 112, 181, 0.3);
-    }
-
-    .btn-register:active {
-        transform: translateY(0);
+        transform: translateY(-1px);
     }
 
     .form-footer {
-        margin-top: 2.5rem;
+        margin-top: 1.5rem;
         text-align: center;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         color: #6b7280;
     }
 
@@ -147,50 +141,16 @@
         color: #3170b5;
         font-weight: 700;
         text-decoration: none;
-        margin-left: 0.25rem;
     }
 
     .form-footer a:hover {
         text-decoration: underline;
     }
-
-    /* Dark Mode Support */
-    body.dark-mode {
-        background-color: #0f172a;
-    }
-
-    body.dark-mode .register-container {
-        background: #1e293b;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    }
-
-    body.dark-mode .register-header h2 {
-        color: #f1f5f9;
-    }
-
-    body.dark-mode .register-header p {
-        color: #94a3b8;
-    }
-
-    body.dark-mode .input-group-custom label {
-        color: #e2e8f0;
-    }
-
-    body.dark-mode .input-wrapper input {
-        background-color: #334155;
-        border-color: #475569;
-        color: #f1f5f9;
-    }
-
-    body.dark-mode .input-wrapper input:focus {
-        border-color: #60a5fa;
-        background-color: #1e293b;
-    }
 </style>
 
 <div class="register-container">
     <div class="register-header">
-        <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo" onerror="this.onerror=null; this.src='https://via.placeholder.com/150x50?text=LOGO'">
+        <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo" onerror="this.style.display='none'">
         <h2>Create Account</h2>
         <p>Join our professional call center network.</p>
     </div>
@@ -238,15 +198,8 @@
 </div>
 
 <script>
-    function applyDarkMode() {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
-    }
-    
-    applyDarkMode();
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyDarkMode);
+    // Always show day theme as per user preference
+    document.body.classList.remove('dark-mode');
 </script>
-{% endblock %}
+{% endblock %}
+
