@@ -5,59 +5,56 @@
 <div class="login-page">
     <div class="login-card">
         <div class="login-grid">
-            <!-- Left hero section -->
+            <!-- Left: Welcome & Illustration -->
             <div class="login-hero">
                 <div class="hero-inner">
-                    <div class="hero-logo">
-                        <img src="{% static 'images/logo.png' %}" alt="Logo" onerror="this.style.display='none'">
-                    </div>
-                    <div class="system-name">CCMS</div>
-                    <h2 class="hero-title">Call Center<br>Management System</h2>
-                    <p class="hero-subtitle">Streamline corrections, knowledge, and announcements</p>
+                    <h2 class="hero-title">Welcome back</h2>
+                    <p class="hero-subtitle">Sign in to continue managing the call center</p>
                 </div>
-                <div class="hero-illustration">
-                    <i class="fas fa-headset"></i>
-                </div>
+                <img src="{% static 'images/home-page.png' %}" alt="Welcome illustration" class="hero-illustration" onerror="this.style.display='none'">
             </div>
 
-            <!-- Right form container -->
+            <!-- Right: Login Form -->
             <div class="login-form-container">
                 <div class="login-form-card">
-                    <div class="form-logo text-center mb-3">
-                        <img src="{% static 'images/logo-small.png' %}" alt="Logo" onerror="this.style.display='none'">
+                    <div class="form-logo">
+                        <img src="{% static 'images/logo.png' %}" alt="Logo" onerror="this.style.display='none'">
                     </div>
-                    <h3 class="form-title">Welcome Back</h3>
-                    <form method="post">
+                    <h3 class="form-title">Login</h3>
+                    <form method="post" action="{% url 'login' %}" class="brand-form">
                         {% csrf_token %}
                         <div class="form-group">
-                            <label for="id_username">Username</label>
+                            <label for="username">Username</label>
                             <div class="input-group">
-                                <span class="input-icon"><i class="fas fa-user"></i></span>
-                                <input type="text" name="username" id="id_username" class="form-control" placeholder="Enter your username" required>
+                                <i class="fas fa-user input-icon"></i>
+                                <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required autofocus>
                             </div>
                         </div>
+
                         <div class="form-group">
-                            <label for="id_password">Password</label>
+                            <label for="password">Password</label>
                             <div class="input-group">
-                                <span class="input-icon"><i class="fas fa-lock"></i></span>
-                                <input type="password" name="password" id="id_password" class="form-control" placeholder="Enter your password" required>
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
                             </div>
                         </div>
+
                         <div class="form-options">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="remember">
-                                <label class="form-check-label" for="remember">Remember me</label>
-                            </div>
-                            <!-- Optional: add "Forgot password?" link later -->
+                            <label class="form-check">
+                                <input type="checkbox" id="remember" name="remember" class="form-check-input">
+                                <span class="form-check-label">Remember me</span>
+                            </label>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+
+                        <button type="submit" class="btn btn-primary btn-block">Log In</button>
                     </form>
+
                     <div class="form-footer">
-                        Don't have an account?
-                        <a href="{% url 'register' %}" class="link-primary">Register now</a>
+                        <span class="text-muted">Don't have an account?</span>
+                        <a href="{% url 'register' %}" class="link-primary">Create one</a>
                     </div>
                     <div class="login-footer">
-                        &copy; {% now "Y" %} Call Center Management System
+                        <p>&copy; {% now "Y" %}. All rights reserved.</p>
                     </div>
                 </div>
             </div>
