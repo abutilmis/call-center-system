@@ -200,3 +200,11 @@ def create_supervisor(request):
     user.role = role
     user.save()
     return HttpResponse(f"Supervisor created!<br>Username: {username}<br>Password: {password}<br>Please log in and change your password.")
+from django.contrib.auth.views import LoginView
+from .forms import SupervisorLoginForm
+
+class SupervisorLoginView(LoginView):
+    template_name = 'registration/supervisor_login.html'
+    authentication_form = SupervisorLoginForm
+    redirect_authenticated_user = True
+    success_url = '/'

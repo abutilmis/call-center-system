@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from .views import SupervisorLoginView
+
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
@@ -16,4 +18,5 @@ urlpatterns = [
     path('announcements/add/', views.announcement_create, name='announcement_create'),
     path('register/', views.register, name='register'),
     path('create-supervisor/', views.create_supervisor, name='create_supervisor'),
+
 ]
