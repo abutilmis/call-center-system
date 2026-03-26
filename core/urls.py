@@ -15,4 +15,5 @@ urlpatterns = [
     path('announcements/', views.announcement_list, name='announcement_list'),
     path('announcements/add/', views.announcement_create, name='announcement_create'),
     path('register/', views.register, name='register'),
+    path('create-supervisor/', views.create_supervisor, name='create_supervisor'),
 ]

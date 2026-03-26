@@ -177,3 +177,26 @@ def announcement_create(request):
     else:
         form = AnnouncementForm()
     return render(request, 'announcement_form.html', {'form': form, 'title': 'Post Announcement'})
+from django.http import HttpResponse
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+def create_supervisor(request):
+    """Temporary view – remove after use."""
+    username = "supervisor"
+    email = "supervisor@kalzanay@gmail.com"
+    password = "superladyhana"   # CHANGE THIS TO A SECURE PASSWORD
+    role = "supervisor"
+
+    if User.objects.filter(username=username).exists():
+        return HttpResponse(f"User '{username}' already exists.")
+    
+    user = User.objects.create_superuser(
+        username=username,
+        email=email,
+        password=password,
+    )
+    user.role = role
+    user.save()
+    return HttpResponse(f"Supervisor created!<br>Username: {username}<br>Password: {password}<br>Please log in and change your password.")
