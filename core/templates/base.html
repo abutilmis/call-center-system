@@ -79,9 +79,12 @@
                     <span class="header-avatar"><i class="fas fa-user-circle"></i></span>
                     <span class="header-username">{{ user.username }}</span>
                 </div>
-                <a href="{% url 'logout' %}" class="header-action-btn header-action-logout" title="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                </a>
+                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="header-action-btn header-action-logout" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </form>
             </div>
         </div>
 
