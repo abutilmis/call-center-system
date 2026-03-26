@@ -2,79 +2,251 @@
 {% load static %}
 
 {% block content %}
-<div class="login-page">
-    <div class="login-card">
-        <div class="login-grid">
-            <!-- Left column: illustration and welcome text -->
-            <div class="login-hero">
-                <div class="hero-inner">
-                    <div class="hero-logo">
-                        <img src="{% static 'images/logo.png' %}" alt="Logo" onerror="this.style.display='none'">
-                    </div>
-                    <h2 class="hero-title">Create Account</h2>
-                    <p class="hero-subtitle">Join our call center management system</p>
-                </div>
-                <img src="{% static 'images/home-page.png' %}" alt="Illustration" class="hero-illustration" onerror="this.style.display='none'">
-            </div>
+<style>
+    /* Page specific layout adjustments */
+    body {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+    }
 
-            <!-- Right column: registration form -->
-            <div class="login-form-container">
-                <div class="login-form-card">
-                    <div class="form-logo">
-                        <img src="{% static 'images/logo.png' %}" alt="Logo" onerror="this.style.display='none'">
-                    </div>
-                    <h3 class="form-title">Sign up</h3>
-                    <form method="post" action="{% url 'register' %}" class="brand-form">
-                        {% csrf_token %}
-                        <!-- Username -->
-                        <div class="form-group">
-                            <label for="id_username">Username</label>
-                            <div class="input-group">
-                                <i class="fas fa-user input-icon"></i>
-                                <input type="text" name="username" id="id_username" class="form-control" placeholder="Choose a username" required autofocus>
-                            </div>
-                        </div>
+    /* Override the default Bootstrap container for login/register */
+    .container.mt-5 {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-top: 0 !important;
+        padding: 0 !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
 
-                        <!-- Email (optional, but useful) -->
-                        <div class="form-group">
-                            <label for="id_email">Email</label>
-                            <div class="input-group">
-                                <i class="fas fa-envelope input-icon"></i>
-                                <input type="email" name="email" id="id_email" class="form-control" placeholder="Your email address" required>
-                            </div>
-                        </div>
+    .register-container {
+        width: 100%;
+        max-width: 550px;
+        background: #ffffff;
+        border-radius: 1.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        padding: 3.5rem;
+        margin: 2rem 1rem;
+        animation: fadeIn 0.6s ease-out;
+    }
 
-                        <!-- Password -->
-                        <div class="form-group">
-                            <label for="id_password1">Password</label>
-                            <div class="input-group">
-                                <i class="fas fa-lock input-icon"></i>
-                                <input type="password" name="password1" id="id_password1" class="form-control" placeholder="Enter a secure password" required>
-                            </div>
-                        </div>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-                        <!-- Confirm Password -->
-                        <div class="form-group">
-                            <label for="id_password2">Confirm Password</label>
-                            <div class="input-group">
-                                <i class="fas fa-check-circle input-icon"></i>
-                                <input type="password" name="password2" id="id_password2" class="form-control" placeholder="Confirm your password" required>
-                            </div>
-                        </div>
+    .register-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
 
-                        <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
-                    </form>
+    .register-header .logo {
+        height: 48px;
+        margin-bottom: 2rem;
+    }
 
-                    <div class="form-footer">
-                        <span class="text-muted">Already have an account?</span>
-                        <a href="{% url 'login' %}" class="link-primary">Log in</a>
-                    </div>
-                    <div class="login-footer">
-                        <p>&copy; {% now "Y" %} All rights reserved.</p>
-                    </div>
-                </div>
+    .register-header h2 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+        color: #111827;
+    }
+
+    .register-header p {
+        color: #6b7280;
+        font-size: 1.05rem;
+    }
+
+    .input-group-custom {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group-custom label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.6rem;
+        color: #374151;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    .input-wrapper i {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        transition: color 0.3s;
+    }
+
+    .input-wrapper input {
+        width: 100%;
+        padding: 0.875rem 1rem 0.875rem 3.25rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background-color: #f9fafb;
+    }
+
+    .input-wrapper input:focus {
+        outline: none;
+        border-color: #3170b5;
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(49, 112, 181, 0.1);
+    }
+
+    .input-wrapper input:focus + i {
+        color: #3170b5;
+    }
+
+    .btn-register {
+        width: 100%;
+        padding: 1rem;
+        background-color: #3170b5;
+        color: white;
+        border: none;
+        border-radius: 1rem;
+        font-size: 1.125rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px -1px rgba(49, 112, 181, 0.2);
+        margin-top: 1rem;
+    }
+
+    .btn-register:hover {
+        background-color: #255a91;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(49, 112, 181, 0.3);
+    }
+
+    .btn-register:active {
+        transform: translateY(0);
+    }
+
+    .form-footer {
+        margin-top: 2.5rem;
+        text-align: center;
+        font-size: 0.95rem;
+        color: #6b7280;
+    }
+
+    .form-footer a {
+        color: #3170b5;
+        font-weight: 700;
+        text-decoration: none;
+        margin-left: 0.25rem;
+    }
+
+    .form-footer a:hover {
+        text-decoration: underline;
+    }
+
+    /* Dark Mode Support */
+    body.dark-mode {
+        background-color: #0f172a;
+    }
+
+    body.dark-mode .register-container {
+        background: #1e293b;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    body.dark-mode .register-header h2 {
+        color: #f1f5f9;
+    }
+
+    body.dark-mode .register-header p {
+        color: #94a3b8;
+    }
+
+    body.dark-mode .input-group-custom label {
+        color: #e2e8f0;
+    }
+
+    body.dark-mode .input-wrapper input {
+        background-color: #334155;
+        border-color: #475569;
+        color: #f1f5f9;
+    }
+
+    body.dark-mode .input-wrapper input:focus {
+        border-color: #60a5fa;
+        background-color: #1e293b;
+    }
+</style>
+
+<div class="register-container">
+    <div class="register-header">
+        <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo" onerror="this.onerror=null; this.src='https://via.placeholder.com/150x50?text=LOGO'">
+        <h2>Create Account</h2>
+        <p>Join our professional call center network.</p>
+    </div>
+
+    <form method="post" action="{% url 'register' %}">
+        {% csrf_token %}
+        <div class="input-group-custom">
+            <label for="username">Username</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" name="username" id="username" placeholder="Choose a username" required autofocus>
             </div>
         </div>
+
+        <div class="input-group-custom">
+            <label for="email">Email Address</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" name="email" id="email" placeholder="name@example.com" required>
+            </div>
+        </div>
+
+        <div class="input-group-custom">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" name="password1" id="password" placeholder="Create a password" required>
+            </div>
+        </div>
+
+        <div class="input-group-custom">
+            <label for="confirm-password">Confirm Password</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-check-circle"></i>
+                <input type="password" name="password2" id="confirm-password" placeholder="Confirm your password" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-register">Sign Up</button>
+    </form>
+
+    <div class="form-footer">
+        Already have an account? <a href="{% url 'login' %}">Log in</a>
     </div>
 </div>
-{% endblock %}
+
+<script>
+    function applyDarkMode() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+    }
+    
+    applyDarkMode();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyDarkMode);
+</script>
+{% endblock %}

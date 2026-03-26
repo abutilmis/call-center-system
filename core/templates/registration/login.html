@@ -2,66 +2,396 @@
 {% load static %}
 
 {% block content %}
-<div class="login-page">
-    <div class="login-card">
-        <div class="login-grid">
-            <!-- Left column: illustration and welcome text -->
-            <div class="login-hero">
-                <div class="hero-inner">
-                    <div class="hero-logo">
-                        <img src="{% static 'images/logo.png' %}" alt="Logo" onerror="this.style.display='none'">
-                    </div>
-                    <h2 class="hero-title">Welcome back</h2>
-                    <p class="hero-subtitle">Sign in to continue managing your call center</p>
+<style>
+    /* Page specific layout adjustments */
+    body {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Override the default Bootstrap container for login/register */
+    .container.mt-5 {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-top: 0 !important;
+        padding: 0 !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .login-container {
+        width: 100%;
+        max-width: 1100px;
+        background: #ffffff;
+        border-radius: 1.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        display: flex;
+        min-height: 650px;
+        margin: 1.5rem;
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-hero {
+        flex: 1.2;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        padding: 4rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+    }
+
+    .login-hero .hero-content {
+        z-index: 2;
+    }
+
+    .login-hero .logo {
+        height: 48px;
+        margin-bottom: 2.5rem;
+        display: block;
+    }
+
+    .login-hero h1 {
+        font-size: 2.75rem;
+        font-weight: 800;
+        margin-bottom: 1.25rem;
+        color: #1e3a8a;
+        line-height: 1.2;
+    }
+
+    .login-hero p {
+        font-size: 1.125rem;
+        color: #4b5563;
+        line-height: 1.6;
+        max-width: 440px;
+    }
+
+    .hero-image-container {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+    }
+
+    .hero-image {
+        width: 100%;
+        max-width: 480px;
+        height: auto;
+        filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.08));
+    }
+
+    .login-form-side {
+        flex: 1;
+        padding: 4rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: white;
+    }
+
+    .form-header {
+        margin-bottom: 3rem;
+    }
+
+    .form-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: #111827;
+    }
+
+    .form-header p {
+        color: #6b7280;
+        font-size: 1rem;
+    }
+
+    .input-group-custom {
+        margin-bottom: 1.75rem;
+    }
+
+    .input-group-custom label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.6rem;
+        color: #374151;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    .input-wrapper i {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        transition: color 0.3s;
+    }
+
+    .input-wrapper input {
+        width: 100%;
+        padding: 0.875rem 1rem 0.875rem 3.25rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background-color: #f9fafb;
+    }
+
+    .input-wrapper input:focus {
+        outline: none;
+        border-color: #3170b5;
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(49, 112, 181, 0.1);
+    }
+
+    .input-wrapper input:focus + i {
+        color: #3170b5;
+    }
+
+    .form-options {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2.5rem;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        cursor: pointer;
+    }
+
+    .checkbox-group input {
+        width: 1.1rem;
+        height: 1.1rem;
+        accent-color: #3170b5;
+        border-radius: 0.25rem;
+    }
+
+    .checkbox-group label {
+        font-size: 0.9rem;
+        color: #4b5563;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 1rem;
+        background-color: #3170b5;
+        color: white;
+        border: none;
+        border-radius: 1rem;
+        font-size: 1.125rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px -1px rgba(49, 112, 181, 0.2);
+    }
+
+    .btn-login:hover {
+        background-color: #255a91;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(49, 112, 181, 0.3);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    .form-footer {
+        margin-top: 2.5rem;
+        text-align: center;
+        font-size: 0.95rem;
+        color: #6b7280;
+    }
+
+    .form-footer a {
+        color: #3170b5;
+        font-weight: 700;
+        text-decoration: none;
+        margin-left: 0.25rem;
+    }
+
+    .form-footer a:hover {
+        text-decoration: underline;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .login-hero {
+            padding: 3rem;
+        }
+        .login-form-side {
+            padding: 3rem;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .login-container {
+            flex-direction: column;
+            max-width: 550px;
+            margin: 2rem 1rem;
+            min-height: auto;
+        }
+
+        .login-hero {
+            padding: 2.5rem;
+            align-items: center;
+            text-align: center;
+        }
+
+        .login-hero p {
+            max-width: 100%;
+        }
+
+        .hero-image {
+            max-width: 320px;
+        }
+
+        .login-form-side {
+            padding: 3rem 2rem;
+        }
+    }
+
+    /* Dark Mode Support */
+    body.dark-mode {
+        background-color: #0f172a;
+    }
+
+    body.dark-mode .login-container {
+        background: #1e293b;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    body.dark-mode .login-hero {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    }
+
+    body.dark-mode .login-hero h1 {
+        color: #60a5fa;
+    }
+
+    body.dark-mode .login-hero p {
+        color: #94a3b8;
+    }
+
+    body.dark-mode .login-form-side {
+        background: #1e293b;
+    }
+
+    body.dark-mode .form-header h2 {
+        color: #f1f5f9;
+    }
+
+    body.dark-mode .form-header p {
+        color: #94a3b8;
+    }
+
+    body.dark-mode .input-group-custom label {
+        color: #e2e8f0;
+    }
+
+    body.dark-mode .input-wrapper input {
+        background-color: #334155;
+        border-color: #475569;
+        color: #f1f5f9;
+    }
+
+    body.dark-mode .input-wrapper input:focus {
+        border-color: #60a5fa;
+        background-color: #1e293b;
+    }
+
+    body.dark-mode .checkbox-group label {
+        color: #94a3b8;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-hero">
+        <div class="hero-content">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo" onerror="this.onerror=null; this.src='https://via.placeholder.com/150x50?text=LOGO'">
+            <h1>Welcome back</h1>
+            <p>Empowering your call center operations with intelligent management tools and real-time insights for your professional teams.</p>
+        </div>
+        <div class="hero-image-container">
+            <img src="{% static 'images/home-page.png' %}" alt="Teamwork Illustration" class="hero-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/480x320?text=Professional+Collaboration'">
+        </div>
+    </div>
+
+    <div class="login-form-side">
+        <div class="form-header">
+            <h2>Log in</h2>
+            <p>Please enter your credentials to access the system.</p>
+        </div>
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="input-group-custom">
+                <label for="username">Username</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" name="username" id="username" placeholder="Username" required autofocus>
                 </div>
-                <img src="{% static 'images/home-page.png' %}" alt="Illustration" class="hero-illustration" onerror="this.style.display='none'">
             </div>
 
-            <!-- Right column: login form -->
-            <div class="login-form-container">
-                <div class="login-form-card">
-                    <div class="form-logo">
-                        <img src="{% static 'images/logo.png' %}" alt="Logo" onerror="this.style.display='none'">
-                    </div>
-                    <h3 class="form-title">Log in</h3>
-                    <form method="post" action="{% url 'login' %}" class="brand-form">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="id_username">Username</label>
-                            <div class="input-group">
-                                <i class="fas fa-user input-icon"></i>
-                                <input type="text" name="username" id="id_username" class="form-control" placeholder="Enter your username" required autofocus>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="id_password">Password</label>
-                            <div class="input-group">
-                                <i class="fas fa-lock input-icon"></i>
-                                <input type="password" name="password" id="id_password" class="form-control" placeholder="Enter your password" required>
-                            </div>
-                        </div>
-
-                        <div class="form-options">
-                            <label class="form-check">
-                                <input type="checkbox" id="remember" name="remember" class="form-check-input">
-                                <span class="form-check-label">Remember me</span>
-                            </label>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block">Log In</button>
-                    </form>
-
-                    <div class="form-footer">
-                        <span class="text-muted">Don't have an account?</span>
-                        <a href="{% url 'register' %}" class="link-primary">Create one</a>
-                    </div>
-                    <div class="login-footer">
-                        <p>&copy; {% now "Y" %} Call Center Management System</p>
-                    </div>
+            <div class="input-group-custom">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password" id="password" placeholder="••••••••" required>
                 </div>
             </div>
+
+            <div class="form-options">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">Log In</button>
+        </form>
+
+        <div class="form-footer">
+            Don't have an account? <a href="{% url 'register' %}">Create one</a>
         </div>
     </div>
 </div>
-{% endblock %}
+
+<script>
+    // Simple script to toggle dark mode based on system preference or manual toggle (if implemented)
+    function applyDarkMode() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+    }
+    
+    // Check if ccms.js already handles this
+    if (typeof applyDarkMode === 'function') {
+        applyDarkMode();
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyDarkMode);
+    }
+</script>
+{% endblock %}
