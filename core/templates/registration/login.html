@@ -8,24 +8,19 @@
             <!-- Left: Welcome & Illustration -->
             <div class="login-hero">
                 <div class="hero-inner">
-                    <div class="hero-logo">
-                        <img src="{% static 'images/logo.png' %}" alt="Logo" onerror="this.style.display='none'">
-                    </div>
-                    <div class="system-name">CCMS</div>
                     <h2 class="hero-title">Welcome back</h2>
-                    <p class="hero-subtitle">Sign in to continue managing your call center</p>
+                    <p class="hero-subtitle">Sign in to continue managing applicants</p>
                 </div>
-                <!-- Optional illustration (icon) -->
-                <i class="fas fa-headset hero-illustration" style="font-size: 120px; opacity: 0.2;"></i>
+                <img src="{% static 'images/home-page.png' %}" alt="Welcome illustration" class="hero-illustration" onerror="this.style.display='none'">
             </div>
 
             <!-- Right: Login Form -->
             <div class="login-form-container">
                 <div class="login-form-card">
-                    <div class="form-logo text-center mb-3">
-                        <i class="fas fa-phone-alt fa-2x" style="color: var(--primary);"></i>
+                    <div class="form-logo">
+                        <img src="{% static 'images/logo.png' %}" alt="Logo" onerror="this.style.display='none'">
                     </div>
-                    <h3 class="form-title text-center">Login</h3>
+                    <h3 class="form-title">Login</h3>
                     <form method="post" action="{% url 'login' %}" class="brand-form">
                         {% csrf_token %}
                         <div class="form-group">
@@ -54,12 +49,12 @@
                         <button type="submit" class="btn btn-primary btn-block">Log In</button>
                     </form>
 
-                    <div class="form-footer text-center mt-3">
+                    <div class="form-footer">
                         <span class="text-muted">Don't have an account?</span>
                         <a href="{% url 'register' %}" class="link-primary">Create one</a>
                     </div>
-                    <div class="login-footer text-center mt-4">
-                        <p>&copy; {% now "Y" %} Call Center Management System</p>
+                    <div class="login-footer">
+                        <p>&copy; {% now "Y" %} All rights reserved.</p>
                     </div>
                 </div>
             </div>
