@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'auth_base.html' %}
 {% load static %}
 
 {% block content %}
@@ -11,16 +11,17 @@
                     <h2 class="hero-title">Welcome back</h2>
                     <p class="hero-subtitle">Sign in to continue managing the call center</p>
                 </div>
-                <img src="{% static 'images/home-page.png' %}" alt="Welcome illustration" class="hero-illustration" onerror="this.style.display='none'">
+                <!-- FontAwesome icon instead of image -->
+                <i class="fas fa-headset hero-illustration" style="font-size: 120px; opacity: 0.2;"></i>
             </div>
 
             <!-- Right: Login Form -->
             <div class="login-form-container">
                 <div class="login-form-card">
-                    <div class="form-logo">
-                        <img src="{% static 'images/logo.png' %}" alt="Logo" onerror="this.style.display='none'">
+                    <div class="form-logo text-center mb-3">
+                        <i class="fas fa-phone-alt fa-2x" style="color: var(--primary);"></i>
                     </div>
-                    <h3 class="form-title">Login</h3>
+                    <h3 class="form-title text-center">Login</h3>
                     <form method="post" action="{% url 'login' %}" class="brand-form">
                         {% csrf_token %}
                         <div class="form-group">
@@ -49,11 +50,11 @@
                         <button type="submit" class="btn btn-primary btn-block">Log In</button>
                     </form>
 
-                    <div class="form-footer">
+                    <div class="form-footer text-center mt-3">
                         <span class="text-muted">Don't have an account?</span>
                         <a href="{% url 'register' %}" class="link-primary">Create one</a>
                     </div>
-                    <div class="login-footer">
+                    <div class="login-footer text-center mt-4">
                         <p>&copy; {% now "Y" %}. All rights reserved.</p>
                     </div>
                 </div>
