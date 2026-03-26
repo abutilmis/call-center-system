@@ -58,6 +58,12 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from .forms import AgencyUploadForm
 
+import pandas as pd
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .forms import AgencyUploadForm
+from .models import Entity
+
 @login_required
 @supervisor_required
 def upload_agencies(request):
@@ -67,9 +73,17 @@ def upload_agencies(request):
             file = request.FILES['file']
             try:
                 df = pd.read_excel(file)
+                # Normalize column names: strip spaces and convert to title case
+                df.columns = [str(col).strip().title() for col in df.columns]
                 required_cols = ['Name', 'Phone1', 'Phone2', 'City', 'Woreda']
-                if not all(col in df.columns for col in required_cols):
-                    messages.error(request, 'File must contain columns: Name, Phone1, Phone2, City, Woreda')
+
+                missing = [col for col in required_cols if col not in df.columns]
+                if missing:
+                    messages.error(
+                        request,
+                        f'File must contain columns: {required_cols}. '
+                        f'Found columns: {list(df.columns)}. Missing: {missing}'
+                    )
                     return redirect('upload_agencies')
 
                 created = 0
