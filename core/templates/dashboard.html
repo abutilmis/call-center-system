@@ -1,41 +1,105 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-<h2>Dashboard</h2>
-<div class="row mt-4">
-    <div class="col-md-3">
-        <div class="card text-white bg-primary mb-3">
-            <div class="card-header">Entities</div>
-            <div class="card-body">
-                <h5 class="card-title">{{ entity_count }}</h5>
+<div class="dashboard">
+    <!-- Stats Row -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card-power">
+                <div class="card-body text-center">
+                    <div class="stat-icon-circle-power mx-auto mb-3">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="stat-label-power">Total Entities</div>
+                    <div class="stat-number-power" id="entityCount">{{ entity_count }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-power">
+                <div class="card-body text-center">
+                    <div class="stat-icon-circle-power mx-auto mb-3">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div class="stat-label-power">Pending Corrections</div>
+                    <div class="stat-number-power" id="pendingCount">{{ pending_corrections }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-power">
+                <div class="card-body text-center">
+                    <div class="stat-icon-circle-power mx-auto mb-3">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="stat-label-power">Knowledge Base</div>
+                    <div class="stat-number-power" id="kbCount">{{ knowledge_count }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-power">
+                <div class="card-body text-center">
+                    <div class="stat-icon-circle-power mx-auto mb-3">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <div class="stat-label-power">Announcements</div>
+                    <div class="stat-number-power" id="announcementCount">{{ announcements|length }}</div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-warning mb-3">
-            <div class="card-header">Pending Corrections</div>
-            <div class="card-body">
-                <h5 class="card-title">{{ pending_corrections }}</h5>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-success mb-3">
-            <div class="card-header">Knowledge Base Entries</div>
-            <div class="card-body">
-                <h5 class="card-title">{{ knowledge_count }}</h5>
+
+    <!-- Recent Announcements Card -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="activity-card">
+                <div class="activity-title">
+                    <i class="fas fa-bell me-2"></i> Latest Announcements
+                </div>
+                {% if announcements %}
+                    <div class="list-group list-group-flush">
+                        {% for ann in announcements %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ ann.title }}</h5>
+                                    <small class="text-muted">{{ ann.timestamp|date:"Y-m-d H:i" }}</small>
+                                </div>
+                                <p class="mb-1">{{ ann.description|truncatewords:30 }}</p>
+                                <small class="text-muted">Posted by {{ ann.posted_by.username }}</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-4">No announcements yet.</p>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
-<h3>Recent Announcements</h3>
-<ul class="list-group">
-    {% for ann in announcements %}
-        <li class="list-group-item">
-            <strong>{{ ann.title }}</strong> - {{ ann.timestamp|date:"Y-m-d H:i" }}<br>
-            {{ ann.description|truncatewords:30 }}
-        </li>
-    {% empty %}
-        <li class="list-group-item">No announcements yet.</li>
-    {% endfor %}
-</ul>
+
+{% block extra_js %}
+<script>
+    // Optional: Add a small animation to numbers
+    document.addEventListener('DOMContentLoaded', function() {
+        const counters = document.querySelectorAll('.stat-number-power');
+        counters.forEach(counter => {
+            const target = parseInt(counter.innerText);
+            let current = 0;
+            const step = Math.ceil(target / 50);
+            const updateCounter = () => {
+                current += step;
+                if (current >= target) {
+                    counter.innerText = target;
+                } else {
+                    counter.innerText = current;
+                    requestAnimationFrame(updateCounter);
+                }
+            };
+            updateCounter();
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %}
