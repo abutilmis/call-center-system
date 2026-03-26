@@ -2,77 +2,152 @@
 {% load static %}
 
 {% block content %}
-<div class="dashboard">
-    <!-- Stats Row -->
+<div class="dashboard-wrapper">
+    <!-- Main Stats Grid -->
     <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="stat-card-power">
-                <div class="card-body text-center">
-                    <div class="stat-icon-circle-power mx-auto mb-3">
-                        <i class="fas fa-building"></i>
-                    </div>
-                    <div class="stat-label-power">Total Entities</div>
-                    <div class="stat-number-power" id="entityCount">{{ entity_count }}</div>
+        <!-- Total Entities -->
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card-power" style="background: linear-gradient(135deg, #3170b5 0%, #255a91 100%);">
+                <div class="stat-icon-circle-power">
+                    <i class="fas fa-layer-group"></i>
                 </div>
+                <div class="stat-label-power">Total Entities</div>
+                <div class="stat-number-power animate-number" data-target="{{ total_entities }}">{{ total_entities }}</div>
+                <small class="opacity-75">All registered organizations</small>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card-power">
-                <div class="card-body text-center">
-                    <div class="stat-icon-circle-power mx-auto mb-3">
-                        <i class="fas fa-edit"></i>
-                    </div>
-                    <div class="stat-label-power">Pending Corrections</div>
-                    <div class="stat-number-power" id="pendingCount">{{ pending_corrections }}</div>
+        <!-- Agencies -->
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card-power" style="background: linear-gradient(135deg, #3170b5 0%, #2a5a8f 100%);">
+                <div class="stat-icon-circle-power">
+                    <i class="fas fa-building"></i>
                 </div>
+                <div class="stat-label-power">Total Agencies</div>
+                <div class="stat-number-power animate-number" data-target="{{ agencies_count }}">{{ agencies_count }}</div>
+                <small class="opacity-75">Service providers</small>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card-power">
-                <div class="card-body text-center">
-                    <div class="stat-icon-circle-power mx-auto mb-3">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <div class="stat-label-power">Knowledge Base</div>
-                    <div class="stat-number-power" id="kbCount">{{ knowledge_count }}</div>
+        <!-- TVET -->
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card-power" style="background: linear-gradient(135deg, #3170b5 0%, #3b82d6 100%);">
+                <div class="stat-icon-circle-power">
+                    <i class="fas fa-graduation-cap"></i>
                 </div>
+                <div class="stat-label-power">Total TVET</div>
+                <div class="stat-number-power animate-number" data-target="{{ tvet_count }}">{{ tvet_count }}</div>
+                <small class="opacity-75">Educational institutions</small>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card-power">
-                <div class="card-body text-center">
-                    <div class="stat-icon-circle-power mx-auto mb-3">
-                        <i class="fas fa-bullhorn"></i>
-                    </div>
-                    <div class="stat-label-power">Announcements</div>
-                    <div class="stat-number-power" id="announcementCount">{{ announcements|length }}</div>
+        <!-- OCSS -->
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card-power" style="background: linear-gradient(135deg, #3170b5 0%, #4f83cc 100%);">
+                <div class="stat-icon-circle-power">
+                    <i class="fas fa-users-cog"></i>
                 </div>
+                <div class="stat-label-power">Total OCSS</div>
+                <div class="stat-number-power animate-number" data-target="{{ ocss_count }}">{{ ocss_count }}</div>
+                <small class="opacity-75">Community support</small>
+            </div>
+        </div>
+        <!-- Pending Corrections -->
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card-power" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 15px 35px rgba(245, 158, 11, 0.2);">
+                <div class="stat-icon-circle-power">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="stat-label-power">Pending Corrections</div>
+                <div class="stat-number-power animate-number" data-target="{{ pending_corrections }}">{{ pending_corrections }}</div>
+                <small class="opacity-75">Awaiting supervisor review</small>
+            </div>
+        </div>
+        <!-- Knowledge Base -->
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card-power" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 15px 35px rgba(16, 185, 129, 0.2);">
+                <div class="stat-icon-circle-power">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div class="stat-label-power">Knowledge Entries</div>
+                <div class="stat-number-power animate-number" data-target="{{ knowledge_count }}">{{ knowledge_count }}</div>
+                <small class="opacity-75">Resources available</small>
             </div>
         </div>
     </div>
 
-    <!-- Recent Announcements Card -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="activity-card">
+    <div class="row g-4">
+        <!-- Recent Activity -->
+        <div class="col-lg-7">
+            <div class="activity-card h-100">
                 <div class="activity-title">
-                    <i class="fas fa-bell me-2"></i> Latest Announcements
+                    <i class="fas fa-history me-2 text-primary"></i> Recent Activity
+                </div>
+                {% if recent_entities %}
+                <div class="table-responsive">
+                    <table class="table modern-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Entity Name</th>
+                                <th>Type</th>
+                                <th>Date Added</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entity in recent_entities %}
+                            <tr>
+                                <td>
+                                    <span class="fw-bold">{{ entity.name }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if entity.entity_type == 'agency' %}bg-primary{% elif entity.entity_type == 'tvet' %}bg-success{% else %}bg-info{% endif %} rounded-pill">
+                                        {{ entity.get_entity_type_display }}
+                                    </span>
+                                </td>
+                                <td class="text-muted small">
+                                    {{ entity.created_at|date:"M d, Y" }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-light mb-3"></i>
+                    <p class="text-muted">No recent entities found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Latest Announcements -->
+        <div class="col-lg-5">
+            <div class="activity-card h-100">
+                <div class="activity-title">
+                    <i class="fas fa-bullhorn me-2 text-primary"></i> Announcements
                 </div>
                 {% if announcements %}
-                    <div class="list-group list-group-flush">
-                        {% for ann in announcements %}
-                            <div class="list-group-item px-0">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">{{ ann.title }}</h5>
-                                    <small class="text-muted">{{ ann.timestamp|date:"Y-m-d H:i" }}</small>
-                                </div>
-                                <p class="mb-1">{{ ann.description|truncatewords:30 }}</p>
-                                <small class="text-muted">Posted by {{ ann.posted_by.username }}</small>
-                            </div>
-                        {% endfor %}
+                <div class="announcement-list">
+                    {% for ann in announcements %}
+                    <div class="announcement-item mb-4 pb-3 border-bottom border-light">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="fw-bold mb-0">{{ ann.title }}</h6>
+                            <small class="text-muted">{{ ann.timestamp|date:"M d" }}</small>
+                        </div>
+                        <p class="text-muted small mb-1">{{ ann.description|truncatewords:20 }}</p>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-circle text-primary me-1 small"></i>
+                            <span class="text-secondary smaller">{{ ann.posted_by.username }}</span>
+                        </div>
                     </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{% url 'announcement_list' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">View All</a>
+                </div>
                 {% else %}
-                    <p class="text-muted text-center py-4">No announcements yet.</p>
+                <div class="text-center py-5">
+                    <i class="fas fa-bell-slash fa-3x text-light mb-3"></i>
+                    <p class="text-muted">No announcements to display.</p>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -81,25 +156,28 @@
 
 {% block extra_js %}
 <script>
-    // Optional: Add a small animation to numbers
     document.addEventListener('DOMContentLoaded', function() {
-        const counters = document.querySelectorAll('.stat-number-power');
+        // Advanced Number Animation
+        const counters = document.querySelectorAll('.animate-number');
         counters.forEach(counter => {
-            const target = parseInt(counter.innerText);
+            const target = parseInt(counter.getAttribute('data-target'));
             let current = 0;
-            const step = Math.ceil(target / 50);
-            const updateCounter = () => {
-                current += step;
-                if (current >= target) {
-                    counter.innerText = target;
-                } else {
+            const duration = 1500; // 1.5 seconds
+            const startTime = performance.now();
+
+            const updateCounter = (currentTime) => {
+                const elapsedTime = currentTime - startTime;
+                if (elapsedTime < duration) {
+                    current = Math.ceil((elapsedTime / duration) * target);
                     counter.innerText = current;
                     requestAnimationFrame(updateCounter);
+                } else {
+                    counter.innerText = target;
                 }
             };
-            updateCounter();
+            requestAnimationFrame(updateCounter);
         });
     });
 </script>
 {% endblock %}
-{% endblock %}
+{% endblock %}

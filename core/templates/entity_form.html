@@ -2,108 +2,143 @@
 {% load static %}
 
 {% block content %}
-<h2>{{ title }}</h2>
-<form method="post">
-    {% csrf_token %}
-    <div class="row">
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label class="form-label">Entity Type</label>
-                {{ form.entity_type }}
-            </div>
+<div class="dashboard-wrapper">
+    <!-- Form Header -->
+    <div class="d-flex align-items-center mb-5 p-4 bg-white rounded-4 shadow-sm">
+        <div class="stat-icon-square bg-primary-soft me-3">
+            <i class="fas fa-building-circle-check"></i>
+        </div>
+        <div>
+            <h2 class="fw-bold mb-0">{% if form.instance.pk %}Update{% else %}Add New{% endif %} Entity</h2>
+            <p class="text-muted mb-0">Fill in the details below to register a new organization in the system.</p>
         </div>
     </div>
 
-    <!-- Common fields -->
-    <div class="row">
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label class="form-label">Name</label>
-                {{ form.name }}
+    <!-- Form Card -->
+    <div class="activity-card">
+        <form method="post" class="p-2">
+            {% csrf_token %}
+            
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="form-group mb-0">
+                        <label class="form-label fw-bold text-muted small ps-2">ENTITY TYPE</label>
+                        {{ form.entity_type }}
+                        {% if form.entity_type.errors %}
+                            <div class="text-danger small mt-1 ps-2">{{ form.entity_type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label class="form-label">Primary Phone</label>
-                {{ form.phone }}
-            </div>
-        </div>
-    </div>
 
-    <!-- Agency-specific fields (hidden by default) -->
-    <div id="agencyFields" style="display: none;">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label">Secondary Phone</label>
-                    {{ form.phone2 }}
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label">City</label>
-                    {{ form.city }}
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label">Woreda</label>
-                    {{ form.woreda }}
-                </div>
-            </div>
-        </div>
-    </div>
+            <hr class="my-4 opacity-25">
 
-    <!-- TVET/OCSS fields (hidden by default) -->
-    <div id="tvetOcssFields" style="display: none;">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label">Registration ID</label>
-                    {{ form.registration_id }}
+            <!-- Name and Phone -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="form-group mb-0">
+                        <label class="form-label fw-bold text-muted small ps-2">ORGANIZATION NAME</label>
+                        {{ form.name }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-0">
+                        <label class="form-label fw-bold text-muted small ps-2">PRIMARY PHONE</label>
+                        {{ form.phone }}
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label">Location</label>
-                    {{ form.location }}
+
+            <!-- Agency-specific fields -->
+            <div id="agencyFields" style="display: none;">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">SECONDARY PHONE (OPTIONAL)</label>
+                            {{ form.phone2 }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">CITY</label>
+                            {{ form.city }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">WOREDA</label>
+                            {{ form.woreda }}
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Additional info -->
-    <div class="mb-3">
-        <label class="form-label">Additional Info (JSON)</label>
-        {{ form.additional_info }}
-    </div>
+            <!-- TVET/OCSS fields -->
+            <div id="tvetOcssFields" style="display: none;">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">REGISTRATION ID</label>
+                            {{ form.registration_id }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">LOCATION / ADDRESS</label>
+                            {{ form.location }}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a href="{% url 'entity_list' %}" class="btn btn-secondary">Cancel</a>
-</form>
+            <hr class="my-4 opacity-25">
+
+            <!-- Additional info -->
+            <div class="row g-4 mb-5">
+                <div class="col-12">
+                    <div class="form-group mb-0">
+                        <label class="form-label fw-bold text-muted small ps-2">ADDITIONAL INFORMATION (JSON FORMAT)</label>
+                        {{ form.additional_info }}
+                        <small class="text-muted ps-2 mt-1 d-block">Optional technical data in JSON format.</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex gap-3 justify-content-end border-top pt-4">
+                <a href="{% url 'entity_list' %}" class="btn btn-light rounded-pill px-5 py-2">Cancel</a>
+                <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold">
+                    <i class="fas fa-save me-2"></i>Save Record
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
-    const entityTypeSelect = document.getElementById('id_entity_type');
-    const agencyDiv = document.getElementById('agencyFields');
-    const tvetOcssDiv = document.getElementById('tvetOcssFields');
+    document.addEventListener('DOMContentLoaded', function() {
+        const entityTypeSelect = document.getElementById('id_entity_type');
+        const agencyDiv = document.getElementById('agencyFields');
+        const tvetOcssDiv = document.getElementById('tvetOcssFields');
 
-    function toggleFields() {
-        const selected = entityTypeSelect.value;
-        if (selected === 'agency') {
-            agencyDiv.style.display = 'block';
-            tvetOcssDiv.style.display = 'none';
-        } else if (selected === 'tvet' || selected === 'ocss') {
-            agencyDiv.style.display = 'none';
-            tvetOcssDiv.style.display = 'block';
-        } else {
-            agencyDiv.style.display = 'none';
-            tvetOcssDiv.style.display = 'none';
+        function toggleFields() {
+            const selected = entityTypeSelect.value;
+            if (selected === 'agency') {
+                agencyDiv.style.display = 'block';
+                tvetOcssDiv.style.display = 'none';
+            } else if (selected === 'tvet' || selected === 'ocss') {
+                agencyDiv.style.display = 'none';
+                tvetOcssDiv.style.display = 'block';
+            } else {
+                agencyDiv.style.display = 'none';
+                tvetOcssDiv.style.display = 'none';
+            }
         }
-    }
 
-    entityTypeSelect.addEventListener('change', toggleFields);
-    toggleFields(); // initial call
+        entityTypeSelect.addEventListener('change', toggleFields);
+        toggleFields(); // initial call
+    });
 </script>
-{% endblock %}
+{% endblock %}

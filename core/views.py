@@ -21,10 +21,14 @@ def supervisor_required(view_func):
 @login_required
 def dashboard(request):
     context = {
-        'entity_count': Entity.objects.count(),
+        'total_entities': Entity.objects.count(),
+        'agencies_count': Entity.objects.filter(entity_type='agency').count(),
+        'tvet_count': Entity.objects.filter(entity_type='tvet').count(),
+        'ocss_count': Entity.objects.filter(entity_type='ocss').count(),
         'pending_corrections': CorrectionRequest.objects.filter(status='pending').count(),
         'knowledge_count': KnowledgeBase.objects.count(),
         'announcements': Announcement.objects.order_by('-timestamp')[:5],
+        'recent_entities': Entity.objects.order_by('-created_at')[:5],
     }
     return render(request, 'dashboard.html', context)
 
@@ -37,6 +41,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 def entity_list(request):
     entity_type = request.GET.get('type', 'agency')
     query = request.GET.get('q', '')
+    sort = request.GET.get('sort', 'date_desc')
 
     entities = Entity.objects.filter(entity_type=entity_type)
 
@@ -44,6 +49,15 @@ def entity_list(request):
         entities = entities.filter(
             Q(name__icontains=query) | Q(phone__icontains=query) | Q(phone2__icontains=query)
         )
+
+    # Sorting
+    sort_map = {
+        'name_asc': 'name',
+        'name_desc': '-name',
+        'date_asc': 'created_at',
+        'date_desc': '-created_at',
+    }
+    entities = entities.order_by(sort_map.get(sort, '-created_at'))
 
     # AJAX autocomplete request
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -64,7 +78,20 @@ def entity_list(request):
         'entities': entities_page,
         'query': query,
         'entity_type': entity_type,
+        'sort': sort,
     })
+
+@login_required
+@supervisor_required
+def delete_all_entities(request):
+    if request.method == 'POST':
+        entity_type = request.POST.get('entity_type')
+        if entity_type in ['agency', 'tvet', 'ocss']:
+            deleted_count, _ = Entity.objects.filter(entity_type=entity_type).delete()
+            messages.success(request, f"Successfully deleted all {deleted_count} {entity_type} records.")
+        else:
+            messages.error(request, "Invalid entity type specified.")
+    return redirect('entity_list')
 import pandas as pd
 from django.contrib import messages
 from django.shortcuts import render, redirect

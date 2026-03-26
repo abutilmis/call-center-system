@@ -2,116 +2,195 @@
 {% load static %}
 
 {% block content %}
-<div class="dashboard">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Entities</h2>
-        {% if user.role == 'supervisor' %}
-        <a href="{% url 'upload_agencies' %}" class="btn btn-primary">
-            <i class="fas fa-upload me-2"></i>Upload Agency File
-        </a>
-        {% endif %}
-    </div>
-
-    <!-- Tabs for entity types -->
-    <ul class="nav nav-tabs mb-4">
-        <li class="nav-item">
-            <a class="nav-link {% if entity_type == 'agency' %}active{% endif %}" href="?type=agency">Agencies</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if entity_type == 'tvet' %}active{% endif %}" href="?type=tvet">TVET</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if entity_type == 'ocss' %}active{% endif %}" href="?type=ocss">OCSS</a>
-        </li>
-    </ul>
-
-    <!-- Search bar with live autocomplete -->
-    <div class="mb-4">
-        <div class="input-group">
-            <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
-            <input type="text" id="searchInput" class="form-control" placeholder="Search by name or phone..." autocomplete="off" value="{{ query }}">
-            <button class="btn btn-primary" id="searchBtn">Search</button>
+<div class="dashboard-wrapper">
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 p-4 bg-white rounded-4 shadow-sm">
+        <div>
+            <h2 class="fw-bold mb-1">Manage {{ entity_type|title }}s</h2>
+            <p class="text-muted mb-0">Browse, search, and manage your center's {{ entity_type }} records.</p>
         </div>
-        <div id="autocomplete-results" class="list-group mt-2" style="display: none;"></div>
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            {% if user.role == 'supervisor' %}
+            <button type="button" class="btn btn-outline-danger px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#deleteAllModal">
+                <i class="fas fa-trash-alt me-2"></i>Delete All
+            </button>
+            <a href="{% url 'upload_agencies' %}" class="btn btn-outline-primary px-4 rounded-pill">
+                <i class="fas fa-upload me-2"></i>Upload File
+            </a>
+            {% endif %}
+            <a href="{% url 'entity_create' %}?type={{ entity_type }}" class="btn btn-primary px-4 rounded-pill">
+                <i class="fas fa-plus me-2"></i>Add New
+            </a>
+        </div>
     </div>
 
-    <!-- Results table -->
-    <div class="table-responsive">
-        <table class="table table-striped modern-table" id="entitiesTable">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Phone 1</th>
-                    <th>Phone 2</th>
-                    <th>City</th>
-                    <th>Woreda</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for entity in entities %}
-                <tr>
-                    <td>{{ entity.name }}</td>
-                    <td>{{ entity.phone }}</td>
-                    <td>{{ entity.phone2|default:"—" }}</td>
-                    <td>{{ entity.city|default:"—" }}</td>
-                    <td>{{ entity.woreda|default:"—" }}</td>
-                    <td>
-                        <a href="{% url 'entity_update' entity.pk %}" class="btn btn-sm btn-warning">
-                            <i class="fas fa-edit"></i> Edit
-                        </a>
-                        <a href="{% url 'entity_delete' entity.pk %}" class="btn btn-sm btn-danger">
-                            <i class="fas fa-trash"></i> Delete
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center">No {{ entity_type }} found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Filter & Search Section -->
+    <div class="row g-3 mb-4 align-items-end">
+        <!-- Tabs -->
+        <div class="col-lg-6">
+            <ul class="nav nav-pills bg-white p-2 rounded-pill shadow-sm">
+                <li class="nav-item">
+                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'agency' %}active{% endif %}" href="?type=agency&sort={{ sort }}&q={{ query }}">Agencies</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'tvet' %}active{% endif %}" href="?type=tvet&sort={{ sort }}&q={{ query }}">TVET</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'ocss' %}active{% endif %}" href="?type=ocss&sort={{ sort }}&q={{ query }}">OCSS</a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Sorting -->
+        <div class="col-lg-2 col-md-4">
+            <label class="form-label small fw-bold text-muted ps-2">Sort By</label>
+            <select class="form-select rounded-pill border-0 shadow-sm" onchange="window.location.href=this.value">
+                <option value="?type={{ entity_type }}&q={{ query }}&sort=name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
+                <option value="?type={{ entity_type }}&q={{ query }}&sort=name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name (Z-A)</option>
+                <option value="?type={{ entity_type }}&q={{ query }}&sort=date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Newest First</option>
+                <option value="?type={{ entity_type }}&q={{ query }}&sort=date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
+            </select>
+        </div>
+
+        <!-- Search -->
+        <div class="col-lg-4 col-md-8">
+            <label class="form-label small fw-bold text-muted ps-2">Quick Search</label>
+            <div class="input-group shadow-sm rounded-pill overflow-hidden">
+                <span class="input-group-text bg-white border-0"><i class="fas fa-search text-primary"></i></span>
+                <input type="text" id="searchInput" class="form-control border-0" placeholder="Type to search..." autocomplete="off" value="{{ query }}">
+                <button class="btn btn-primary px-4" id="searchBtn">Search</button>
+            </div>
+            <div id="autocomplete-results" class="list-group shadow position-absolute w-100 z-3" style="display: none; top: 100%;"></div>
+        </div>
     </div>
 
-    <!-- Pagination -->
+    <!-- Results Table -->
+    <div class="activity-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table modern-table mb-0 px-4">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Entity Name</th>
+                        <th>Primary Phone</th>
+                        <th>Secondary Phone</th>
+                        <th>City / Woreda</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entity in entities %}
+                    <tr class="align-middle">
+                        <td class="ps-4">
+                            <span class="fw-bold d-block">{{ entity.name }}</span>
+                            <small class="text-muted">ID: #{{ entity.entity_id }}</small>
+                        </td>
+                        <td><span class="text-dark">{{ entity.phone }}</span></td>
+                        <td><small class="text-muted">{{ entity.phone2|default:"—" }}</small></td>
+                        <td>
+                            <div>{{ entity.city|default:"—" }}</div>
+                            <small class="text-muted">{{ entity.woreda|default:"" }}</small>
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="btn-group">
+                                <a href="{% url 'entity_update' entity.pk %}" class="btn btn-sm btn-light rounded-pill px-3 me-2" title="Edit">
+                                    <i class="fas fa-edit text-warning"></i>
+                                </a>
+                                <a href="{% url 'entity_delete' entity.pk %}" class="btn btn-sm btn-light rounded-pill px-3" title="Delete">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="fas fa-folder-open fa-3x text-light mb-3"></i>
+                            <p class="text-muted">No {{ entity_type }}s found matching your criteria.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination Section -->
     {% if entities.has_other_pages %}
-    <nav aria-label="Page navigation" class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if entities.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&page={{ entities.previous_page_number }}">Previous</a>
-            </li>
-            {% else %}
-            <li class="page-item disabled"><span class="page-link">Previous</span></li>
-            {% endif %}
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-5 px-3">
+        <div class="text-muted small mb-3 mb-md-0">
+            Showing Page <strong>{{ entities.number }}</strong> of <strong>{{ entities.paginator.num_pages }}</strong>
+        </div>
+        
+        <nav aria-label="Page navigation">
+            <ul class="pagination modern-pagination mb-0">
+                <!-- First Page -->
+                <li class="page-item {% if not entities.has_previous %}disabled{% endif %}">
+                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page=1" title="First Page">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                
+                <!-- Previous -->
+                <li class="page-item {% if not entities.has_previous %}disabled{% endif %}">
+                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ entities.previous_page_number|default:1 }}" title="Previous">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
 
-            {% for i in entities.paginator.page_range %}
-                {% if entities.number == i %}
-                <li class="page-item active"><span class="page-link">{{ i }}</span></li>
-                {% else %}
-                <li class="page-item"><a class="page-link" href="?type={{ entity_type }}&q={{ query }}&page={{ i }}">{{ i }}</a></li>
-                {% endif %}
-            {% endfor %}
+                <!-- Page Dropdown -->
+                <li class="page-item mx-2">
+                    <select class="form-select form-select-sm rounded-pill" style="min-width: 80px;" onchange="window.location.href=this.value">
+                        {% for i in entities.paginator.page_range %}
+                        <option value="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ i }}" {% if entities.number == i %}selected{% endif %}>
+                            Page {{ i }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </li>
 
-            {% if entities.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&page={{ entities.next_page_number }}">Next</a>
-            </li>
-            {% else %}
-            <li class="page-item disabled"><span class="page-link">Next</span></li>
-            {% endif %}
-        </ul>
-    </nav>
+                <!-- Next -->
+                <li class="page-item {% if not entities.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ entities.next_page_number|default:entities.paginator.num_pages }}" title="Next">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                
+                <!-- Last Page -->
+                <li class="page-item {% if not entities.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ entities.paginator.num_pages }}" title="Last Page">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
     {% endif %}
+</div>
 
-    <!-- Manual entry button -->
-    <div class="mt-4 text-end">
-        <a href="{% url 'entity_create' %}?type={{ entity_type }}" class="btn btn-success">
-            <i class="fas fa-plus"></i> Add New {{ entity_type|title }}
-        </a>
+<!-- Delete All Confirmation Modal -->
+{% if user.role == 'supervisor' %}
+<div class="modal fade" id="deleteAllModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-body text-center p-5">
+                <div class="mb-4">
+                    <i class="fas fa-exclamation-triangle text-danger fa-4x mb-3"></i>
+                    <h3 class="fw-bold">Delete All {{ entity_type|title }}s?</h3>
+                    <p class="text-muted">This action is irreversible. All current {{ entity_type }} records will be permanently removed from the system.</p>
+                </div>
+                <div class="d-grid gap-2">
+                    <form method="post" action="{% url 'delete_all_entities' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="entity_type" value="{{ entity_type }}">
+                        <button type="submit" class="btn btn-danger w-100 rounded-pill py-2 fw-bold">Yes, Delete Everything</button>
+                    </form>
+                    <button type="button" class="btn btn-light w-100 rounded-pill py-2" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+{% endif %}
 
 <script>
     // Live search with debounce and autocomplete
@@ -119,34 +198,40 @@
     const searchInput = document.getElementById('searchInput');
     const resultsDiv = document.getElementById('autocomplete-results');
     const currentType = '{{ entity_type }}';
+    const currentSort = '{{ sort }}';
 
     function fetchResults(query) {
         if (query.length < 2) {
             resultsDiv.style.display = 'none';
             return;
         }
-        fetch(`?type=${currentType}&q=${encodeURIComponent(query)}`, {
+        fetch(`?type=${currentType}&q=${encodeURIComponent(query)}&sort=${currentSort}`, {
             headers: {'X-Requested-With': 'XMLHttpRequest'}
         })
         .then(response => response.json())
         .then(data => {
             if (data.results && data.results.length) {
                 resultsDiv.innerHTML = data.results.map(item => `
-                    <a href="#" class="list-group-item list-group-item-action" data-id="${item.entity_id}">
-                        <strong>${item.name}</strong><br>
-                        <small>${item.phone} / ${item.phone2 || ''} | ${item.city || ''} ${item.woreda || ''}</small>
+                    <a href="#" class="list-group-item list-group-item-action py-3 border-0 border-bottom" data-id="${item.entity_id}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong class="text-primary">${item.name}</strong><br>
+                                <small class="text-muted"><i class="fas fa-phone-alt me-1"></i>${item.phone}</small>
+                            </div>
+                            <span class="badge bg-light text-secondary rounded-pill">${item.city || 'N/A'}</span>
+                        </div>
                     </a>
                 `).join('');
                 resultsDiv.style.display = 'block';
-                // Attach click handlers: fill input and trigger search
+                
+                // Attach click handlers
                 document.querySelectorAll('.list-group-item').forEach(el => {
                     el.addEventListener('click', (e) => {
                         e.preventDefault();
                         const name = el.querySelector('strong').innerText;
                         searchInput.value = name;
                         resultsDiv.style.display = 'none';
-                        // Trigger search
-                        window.location.href = `?type=${currentType}&q=${encodeURIComponent(name)}`;
+                        window.location.href = `?type=${currentType}&q=${encodeURIComponent(name)}&sort=${currentSort}`;
                     });
                 });
             } else {
@@ -162,16 +247,15 @@
 
     document.getElementById('searchBtn').addEventListener('click', function() {
         const query = searchInput.value;
-        if (query) {
-            window.location.href = `?type=${currentType}&q=${encodeURIComponent(query)}`;
-        }
+        window.location.href = `?type=${currentType}&q=${encodeURIComponent(query)}&sort=${currentSort}`;
     });
 
-    // If there's a query from URL, keep it in the input
-    const urlParams = new URLSearchParams(window.location.search);
-    const initialQuery = urlParams.get('q');
-    if (initialQuery) {
-        searchInput.value = initialQuery;
-    }
+    // Close autocomplete on click outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+            resultsDiv.style.display = 'none';
+        }
+    });
 </script>
 {% endblock %}
+ock %}

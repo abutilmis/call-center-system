@@ -3,6 +3,14 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import User, Entity, CorrectionRequest, KnowledgeBase, Announcement
 
 class EntityForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if isinstance(field.widget, forms.Select):
+                field.widget.attrs.update({'class': 'form-select rounded-pill px-4'})
+            else:
+                field.widget.attrs.update({'class': 'form-control rounded-pill px-4'})
+
     class Meta:
         model = Entity
         fields = [
@@ -10,23 +18,47 @@ class EntityForm(forms.ModelForm):
             'location', 'registration_id', 'additional_info'
         ]
         widgets = {
-            'additional_info': forms.Textarea(attrs={'rows': 3}),
+            'additional_info': forms.Textarea(attrs={'rows': 3, 'class': 'form-control rounded-4 px-4'}),
         }
 
 class CorrectionRequestForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if isinstance(field.widget, forms.Select):
+                field.widget.attrs.update({'class': 'form-select rounded-pill px-4'})
+            else:
+                field.widget.attrs.update({'class': 'form-control rounded-pill px-4'})
+
     class Meta:
         model = CorrectionRequest
         fields = ['entity', 'field_to_correct', 'old_value', 'new_value']
 
 class KnowledgeBaseForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if isinstance(field.widget, (forms.Select, forms.SelectMultiple)):
+                field.widget.attrs.update({'class': 'form-select rounded-pill px-4'})
+            else:
+                field.widget.attrs.update({'class': 'form-control rounded-pill px-4'})
+
     class Meta:
         model = KnowledgeBase
         fields = ['question', 'answer', 'category']
 
 class AnnouncementForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control rounded-pill px-4'})
+
     class Meta:
         model = Announcement
         fields = ['title', 'description']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4, 'class': 'form-control rounded-4 px-4'}),
+        }
 
 class AgentRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)

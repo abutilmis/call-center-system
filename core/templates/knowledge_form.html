@@ -1,10 +1,59 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-<h2>{{ title }}</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a href="{% url 'knowledge_list' %}" class="btn btn-secondary">Cancel</a>
-</form>
+<div class="dashboard-wrapper">
+    <!-- Form Header -->
+    <div class="d-flex align-items-center mb-5 p-4 bg-white rounded-4 shadow-sm">
+        <div class="stat-icon-square bg-primary-soft me-3">
+            <i class="fas fa-book-open"></i>
+        </div>
+        <div>
+            <h2 class="fw-bold mb-0">{% if form.instance.pk %}Update{% else %}New{% endif %} Knowledge Base Entry</h2>
+            <p class="text-muted mb-0">Create or update information in the shared internal knowledge base.</p>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="activity-card">
+        <form method="post" class="p-2">
+            {% csrf_token %}
+            
+            <div class="row g-4 mb-4">
+                <div class="col-md-12">
+                    <div class="form-group mb-0">
+                        <label class="form-label fw-bold text-muted small ps-2">QUESTION / TITLE</label>
+                        {{ form.question }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-12">
+                    <div class="form-group mb-0">
+                        <label class="form-label fw-bold text-muted small ps-2">ANSWER / CONTENT</label>
+                        {{ form.answer }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-5">
+                <div class="col-md-6">
+                    <div class="form-group mb-0">
+                        <label class="form-label fw-bold text-muted small ps-2">CATEGORY</label>
+                        {{ form.category }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex gap-3 justify-content-end border-top pt-4">
+                <a href="{% url 'knowledge_list' %}" class="btn btn-light rounded-pill px-5 py-2">Cancel</a>
+                <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold">
+                    <i class="fas fa-save me-2"></i>Save Entry
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
