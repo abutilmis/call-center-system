@@ -69,12 +69,10 @@ import pandas as pd
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from .forms import AgencyUploadForm
-
-import pandas as pd
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from .forms import AgencyUploadForm
 from .models import Entity
+import logging
+
+logger = logging.getLogger(__name__)
 
 @login_required
 @supervisor_required
@@ -85,31 +83,40 @@ def upload_agencies(request):
             file = request.FILES['file']
             try:
                 df = pd.read_excel(file)
-                # Normalize column names: strip spaces and convert to title case
                 df.columns = [str(col).strip().title() for col in df.columns]
                 required_cols = ['Name', 'Phone1', 'Phone2', 'City', 'Woreda']
-
                 missing = [col for col in required_cols if col not in df.columns]
                 if missing:
                     messages.error(
                         request,
-                        f'File must contain columns: {required_cols}. '
-                        f'Found columns: {list(df.columns)}. Missing: {missing}'
+                        f'File must contain columns: {required_cols}. Found: {list(df.columns)}. Missing: {missing}'
                     )
                     return redirect('upload_agencies')
 
                 created = 0
-                for _, row in df.iterrows():
-                    Entity.objects.create(
-                        entity_type='agency',
-                        name=row['Name'],
-                        phone=row['Phone1'],
-                        phone2=row.get('Phone2', ''),
-                        city=row.get('City', ''),
-                        woreda=row.get('Woreda', ''),
-                    )
-                    created += 1
-                messages.success(request, f'{created} agencies imported successfully.')
+                errors = 0
+                for idx, row in df.iterrows():
+                    try:
+                        # Skip rows missing essential data
+                        if pd.isna(row['Name']) or pd.isna(row['Phone1']):
+                            errors += 1
+                            continue
+                        Entity.objects.create(
+                            entity_type='agency',
+                            name=row['Name'],
+                            phone=row['Phone1'],
+                            phone2=row.get('Phone2', ''),
+                            city=row.get('City', ''),
+                            woreda=row.get('Woreda', ''),
+                        )
+                        created += 1
+                    except Exception as e:
+                        errors += 1
+                        logger.warning(f"Row {idx+2} failed: {e}")
+                if errors:
+                    messages.warning(request, f'{created} agencies imported. {errors} rows skipped due to errors.')
+                else:
+                    messages.success(request, f'{created} agencies imported successfully.')
             except Exception as e:
                 messages.error(request, f'Error processing file: {str(e)}')
             return redirect('entity_list')
