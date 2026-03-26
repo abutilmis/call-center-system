@@ -8,10 +8,14 @@
             <!-- Left: Welcome & Illustration -->
             <div class="login-hero">
                 <div class="hero-inner">
+                    <div class="hero-logo">
+                        <img src="{% static 'images/logo.png' %}" alt="Logo" onerror="this.style.display='none'">
+                    </div>
+                    <div class="system-name">CCMS</div>
                     <h2 class="hero-title">Welcome back</h2>
-                    <p class="hero-subtitle">Sign in to continue managing the call center</p>
+                    <p class="hero-subtitle">Sign in to continue managing your call center</p>
                 </div>
-                <!-- FontAwesome icon instead of image -->
+                <!-- Optional illustration (icon) -->
                 <i class="fas fa-headset hero-illustration" style="font-size: 120px; opacity: 0.2;"></i>
             </div>
 
@@ -25,18 +29,18 @@
                     <form method="post" action="{% url 'login' %}" class="brand-form">
                         {% csrf_token %}
                         <div class="form-group">
-                            <label for="username">Username</label>
+                            <label for="id_username">Username</label>
                             <div class="input-group">
                                 <i class="fas fa-user input-icon"></i>
-                                <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required autofocus>
+                                <input type="text" name="username" id="id_username" class="form-control" placeholder="Enter your username" required autofocus>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="password">Password</label>
+                            <label for="id_password">Password</label>
                             <div class="input-group">
                                 <i class="fas fa-lock input-icon"></i>
-                                <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                                <input type="password" name="password" id="id_password" class="form-control" placeholder="Enter your password" required>
                             </div>
                         </div>
 
@@ -55,7 +59,7 @@
                         <a href="{% url 'register' %}" class="link-primary">Create one</a>
                     </div>
                     <div class="login-footer text-center mt-4">
-                        <p>&copy; {% now "Y" %}. All rights reserved.</p>
+                        <p>&copy; {% now "Y" %} Call Center Management System</p>
                     </div>
                 </div>
             </div>
