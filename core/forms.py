@@ -40,26 +40,3 @@ class AgentRegistrationForm(UserCreationForm):
         if commit:
             user.save()
         return user
-    
-
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import authenticate
-
-class SupervisorLoginForm(AuthenticationForm):
-    """Login form that only accepts the supervisor username."""
-    username = forms.CharField(
-        widget=forms.HiddenInput(),
-        initial='supervisor',
-        required=True,
-    )
-    password = forms.CharField(widget=forms.PasswordInput)
-
-    def clean(self):
-        username = self.cleaned_data.get('username')
-        password = self.cleaned_data.get('password')
-        if username and password:
-            self.user_cache = authenticate(self.request, username=username, password=password)
-            if self.user_cache is None or self.user_cache.role != 'supervisor':
-                raise forms.ValidationError('Invalid supervisor credentials.', code='invalid_login')
-        return self.cleaned_data    
-
