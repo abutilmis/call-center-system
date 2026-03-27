@@ -395,14 +395,24 @@ def upload_ossc(request):
             file = request.FILES['file']
             try:
                 df = pd.read_excel(file, engine='openpyxl', dtype=str)
-                df.columns = [str(col).strip().title() for col in df.columns]
+                # Normalize column names: strip, convert to lower, replace spaces with underscore
+                df.columns = [str(col).strip().lower().replace(' ', '_') for col in df.columns]
 
-                required_cols = ['Region', 'Zone/City', 'Woreda/Sub-City', 'OSSC Name']
-                missing = [col for col in required_cols if col not in df.columns]
+                # Define expected normalized names
+                required_map = {
+                    'region': 'region',
+                    'zone/city': 'zone_city',
+                    'woreda/sub-city': 'woreda_sub_city',
+                    'ossc name': 'ossc_name',
+                }
+
+                # Check which required columns are present (normalized)
+                present = {col for col in df.columns}
+                missing = [req for req in required_map.keys() if required_map[req] not in present]
                 if missing:
                     messages.error(
                         request,
-                        f'File must contain columns: {required_cols}. Found: {list(df.columns)}. Missing: {missing}'
+                        f'File must contain columns: {list(required_map.keys())}. Found: {list(df.columns)}. Missing: {missing}'
                     )
                     return redirect('upload_ossc')
 
@@ -412,10 +422,10 @@ def upload_ossc(request):
 
                 for idx, row in df.iterrows():
                     try:
-                        region = str(row['Region']) if pd.notna(row['Region']) else ''
-                        zone = str(row['Zone/City']) if pd.notna(row['Zone/City']) else ''
-                        woreda = str(row['Woreda/Sub-City']) if pd.notna(row['Woreda/Sub-City']) else ''
-                        name = str(row['OSSC Name']) if pd.notna(row['OSSC Name']) else ''
+                        region = str(row['region']) if pd.notna(row['region']) else ''
+                        zone = str(row['zone/city']) if pd.notna(row['zone/city']) else ''
+                        woreda = str(row['woreda/sub-city']) if pd.notna(row['woreda/sub-city']) else ''
+                        name = str(row['ossc name']) if pd.notna(row['ossc name']) else ''
 
                         # Clean encoding
                         region = region.encode('utf-8', 'replace').decode('utf-8')
@@ -434,7 +444,7 @@ def upload_ossc(request):
                                 region=region,
                                 city=zone,
                                 woreda=woreda,
-                                phone='',  # OCSS has no phone in this schema
+                                phone='',
                             )
                         )
                         created += 1
@@ -454,7 +464,7 @@ def upload_ossc(request):
             return redirect('entity_list')
     else:
         form = OSSCUploadForm()
-    return render(request, 'ossc_upload.html', {'form': form})            
+    return render(request, 'ossc_upload.html', {'form': form})           
 def debug_entities_db(request):
     from core.models import Entity
     from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
