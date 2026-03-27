@@ -4,31 +4,29 @@
 {% block content %}
 <div class="dashboard-wrapper">
     <!-- Header Section -->
-    <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 p-4 bg-white rounded-4 shadow-sm">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 p-4 bg-white rounded-4 shadow-sm">
         <div>
             <h2 class="fw-bold mb-1">Manage {{ entity_type|title }}s</h2>
             <p class="text-muted mb-0">Browse, search, and manage your center's {{ entity_type }} records.</p>
         </div>
         <div class="mt-3 mt-md-0 d-flex gap-2">
             {% if user.role == 'supervisor' %}
-            {% if entity_type == 'agency' %}
-            <a href="{% url 'upload_agencies' %}" class="btn btn-outline-primary px-4 rounded-pill">
-                <i class="fas fa-upload me-2"></i>Upload Agency File
-            </a>
-            {% elif entity_type == 'ocss' %}
-            <a href="{% url 'upload_ossc' %}" class="btn btn-outline-primary px-4 rounded-pill">
-                <i class="fas fa-upload me-2"></i>Upload OCSS File
-            </a>
-            {% elif entity_type == 'tvet' %}
-            <a href="#" class="btn btn-outline-primary px-4 rounded-pill disabled">
-                <i class="fas fa-upload me-2"></i>Upload TVET (soon)
-            </a>
-            {% endif %}
-            <button type="button" class="btn btn-outline-danger px-4 rounded-pill" data-bs-toggle="modal"
-                data-bs-target="#deleteAllModal">
-                <i class="fas fa-trash-alt me-2"></i>Delete All
-            </button>
+                {% if entity_type == 'agency' %}
+                    <a href="{% url 'upload_agencies' %}" class="btn btn-outline-primary px-4 rounded-pill">
+                        <i class="fas fa-upload me-2"></i>Upload Agency File
+                    </a>
+                {% elif entity_type == 'ocss' %}
+                    <a href="{% url 'upload_ossc' %}" class="btn btn-outline-primary px-4 rounded-pill">
+                        <i class="fas fa-upload me-2"></i>Upload OCSS File
+                    </a>
+                {% elif entity_type == 'tvet' %}
+                    <a href="#" class="btn btn-outline-primary px-4 rounded-pill disabled">
+                        <i class="fas fa-upload me-2"></i>Upload TVET (soon)
+                    </a>
+                {% endif %}
+                <button type="button" class="btn btn-outline-danger px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#deleteAllModal">
+                    <i class="fas fa-trash-alt me-2"></i>Delete All
+                </button>
             {% endif %}
             <a href="{% url 'entity_create' %}?type={{ entity_type }}" class="btn btn-primary px-4 rounded-pill">
                 <i class="fas fa-plus me-2"></i>Add New
@@ -42,16 +40,13 @@
         <div class="col-lg-6">
             <ul class="nav nav-pills bg-white p-2 rounded-pill shadow-sm">
                 <li class="nav-item">
-                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'agency' %}active{% endif %}"
-                        href="?type=agency&sort={{ sort }}&q={{ query }}">Agencies</a>
+                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'agency' %}active{% endif %}" href="?type=agency&sort={{ sort }}&q={{ query }}">Agencies</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'tvet' %}active{% endif %}"
-                        href="?type=tvet&sort={{ sort }}&q={{ query }}">TVET</a>
+                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'tvet' %}active{% endif %}" href="?type=tvet&sort={{ sort }}&q={{ query }}">TVET</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'ocss' %}active{% endif %}"
-                        href="?type=ocss&sort={{ sort }}&q={{ query }}">OCSS</a>
+                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'ocss' %}active{% endif %}" href="?type=ocss&sort={{ sort }}&q={{ query }}">OCSS</a>
                 </li>
             </ul>
         </div>
@@ -60,14 +55,10 @@
         <div class="col-lg-2 col-md-4">
             <label class="form-label small fw-bold text-muted ps-2">Sort By</label>
             <select class="form-select rounded-pill border-0 shadow-sm" onchange="window.location.href=this.value">
-                <option value="?type={{ entity_type }}&q={{ query }}&sort=name_asc" {% if sort=='name_asc' %}selected{%
-                    endif %}>Name (A-Z)</option>
-                <option value="?type={{ entity_type }}&q={{ query }}&sort=name_desc" {% if sort=='name_desc'
-                    %}selected{% endif %}>Name (Z-A)</option>
-                <option value="?type={{ entity_type }}&q={{ query }}&sort=date_desc" {% if sort=='date_desc'
-                    %}selected{% endif %}>Newest First</option>
-                <option value="?type={{ entity_type }}&q={{ query }}&sort=date_asc" {% if sort=='date_asc' %}selected{%
-                    endif %}>Oldest First</option>
+                <option value="?type={{ entity_type }}&q={{ query }}&sort=name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
+                <option value="?type={{ entity_type }}&q={{ query }}&sort=name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name (Z-A)</option>
+                <option value="?type={{ entity_type }}&q={{ query }}&sort=date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Newest First</option>
+                <option value="?type={{ entity_type }}&q={{ query }}&sort=date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
             </select>
         </div>
 
@@ -76,12 +67,10 @@
             <label class="form-label small fw-bold text-muted ps-2">Quick Search</label>
             <div class="input-group shadow-sm rounded-pill overflow-hidden">
                 <span class="input-group-text bg-white border-0"><i class="fas fa-search text-primary"></i></span>
-                <input type="text" id="searchInput" class="form-control border-0" placeholder="Type to search..."
-                    autocomplete="off" value="{{ query }}">
+                <input type="text" id="searchInput" class="form-control border-0" placeholder="Type to search..." autocomplete="off" value="{{ query }}">
                 <button class="btn btn-primary px-4" id="searchBtn">Search</button>
             </div>
-            <div id="autocomplete-results" class="list-group shadow position-absolute w-100 z-3"
-                style="display: none; top: 100%;"></div>
+            <div id="autocomplete-results" class="list-group shadow position-absolute w-100 z-3" style="display: none; top: 100%;"></div>
         </div>
     </div>
 
@@ -92,20 +81,20 @@
                 <thead>
                     <tr>
                         {% if entity_type == 'agency' %}
-                        <th class="ps-4">Entity Name</th>
-                        <th>Primary Phone</th>
-                        <th>Secondary Phone</th>
-                        <th>City / Woreda</th>
+                            <th class="ps-4">Entity Name</th>
+                            <th>Primary Phone</th>
+                            <th>Secondary Phone</th>
+                            <th>City / Woreda</th>
                         {% elif entity_type == 'ocss' %}
-                        <th class="ps-4">OSSC Name</th>
-                        <th>Region</th>
-                        <th>Zone/City</th>
-                        <th>Woreda/Sub-City</th>
+                            <th class="ps-4">OSSC Name</th>
+                            <th>Region</th>
+                            <th>Zone/City</th>
+                            <th>Woreda/Sub-City</th>
                         {% else %}
-                        <th class="ps-4">Name</th>
-                        <th>Registration ID</th>
-                        <th>Location</th>
-                        <th>Phone</th>
+                            <th class="ps-4">Name</th>
+                            <th>Registration ID</th>
+                            <th>Location</th>
+                            <th>Phone</th>
                         {% endif %}
                         <th class="text-end pe-4">Actions</th>
                     </tr>
@@ -114,42 +103,40 @@
                     {% for entity in entities %}
                     <tr class="align-middle">
                         {% if entity_type == 'agency' %}
-                        <td class="ps-4">
-                            <span class="fw-bold d-block">{{ entity.name }}</span>
-                            <small class="text-muted">ID: #{{ entity.entity_id }}</small>
-                        </td>
-                        <td><span class="text-dark">{{ entity.phone }}</span></td>
-                        <td><small class="text-muted">{{ entity.phone2|default:"—" }}</small></td>
-                        <td>
-                            <div>{{ entity.city|default:"—" }}</div>
-                            <small class="text-muted">{{ entity.woreda|default:"" }}</small>
-                        </td>
+                            <td class="ps-4">
+                                <span class="fw-bold d-block">{{ entity.name }}</span>
+                                <small class="text-muted">ID: #{{ entity.entity_id }}</small>
+                            </td>
+                            <td><span class="text-dark">{{ entity.phone }}</span></td>
+                            <td><small class="text-muted">{{ entity.phone2|default:"—" }}</small></td>
+                            <td>
+                                <div>{{ entity.city|default:"—" }}</div>
+                                <small class="text-muted">{{ entity.woreda|default:"" }}</small>
+                            </td>
                         {% elif entity_type == 'ocss' %}
-                        <td class="ps-4">
-                            <span class="fw-bold d-block">{{ entity.name }}</span>
-                            <small class="text-muted">ID: #{{ entity.entity_id }}</small>
-                        </td>
-                        <td>{{ entity.region|default:"—" }}</td>
-                        <td>{{ entity.city|default:"—" }}</td>
-                        <td>{{ entity.woreda|default:"—" }}</td>
+                            <td class="ps-4">
+                                <span class="fw-bold d-block">{{ entity.name }}</span>
+                                <small class="text-muted">ID: #{{ entity.entity_id }}</small>
+                            </td>
+                            <td>{{ entity.region|default:"—" }}</td>
+                            <td>{{ entity.city|default:"—" }}</td>
+                            <td>{{ entity.woreda|default:"—" }}</td>
                         {% else %}
-                        {# TVET #}
-                        <td class="ps-4">
-                            <span class="fw-bold d-block">{{ entity.name }}</span>
-                            <small class="text-muted">ID: #{{ entity.entity_id }}</small>
-                        </td>
-                        <td>{{ entity.registration_id|default:"—" }}</td>
-                        <td>{{ entity.location|default:"—" }}</td>
-                        <td>{{ entity.phone|default:"—" }}</td>
+                            {# TVET #}
+                            <td class="ps-4">
+                                <span class="fw-bold d-block">{{ entity.name }}</span>
+                                <small class="text-muted">ID: #{{ entity.entity_id }}</small>
+                            </td>
+                            <td>{{ entity.registration_id|default:"—" }}</td>
+                            <td>{{ entity.location|default:"—" }}</td>
+                            <td>{{ entity.phone|default:"—" }}</td>
                         {% endif %}
                         <td class="text-end pe-4">
                             <div class="btn-group">
-                                <a href="{% url 'entity_update' entity.pk %}"
-                                    class="btn btn-sm btn-light rounded-pill px-3 me-2" title="Edit">
+                                <a href="{% url 'entity_update' entity.pk %}" class="btn btn-sm btn-light rounded-pill px-3 me-2" title="Edit">
                                     <i class="fas fa-edit text-warning"></i>
                                 </a>
-                                <a href="{% url 'entity_delete' entity.pk %}"
-                                    class="btn btn-sm btn-light rounded-pill px-3" title="Delete">
+                                <a href="{% url 'entity_delete' entity.pk %}" class="btn btn-sm btn-light rounded-pill px-3" title="Delete">
                                     <i class="fas fa-trash text-danger"></i>
                                 </a>
                             </div>
@@ -177,40 +164,31 @@
         <nav aria-label="Page navigation">
             <ul class="pagination modern-pagination mb-0">
                 <li class="page-item {% if not entities.has_previous %}disabled{% endif %}">
-                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page=1"
-                        title="First Page">
+                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page=1" title="First Page">
                         <i class="fas fa-angle-double-left"></i>
                     </a>
                 </li>
                 <li class="page-item {% if not entities.has_previous %}disabled{% endif %}">
-                    <a class="page-link"
-                        href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ entities.previous_page_number|default:1 }}"
-                        title="Previous">
+                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ entities.previous_page_number|default:1 }}" title="Previous">
                         <i class="fas fa-angle-left"></i>
                     </a>
                 </li>
                 <li class="page-item mx-2">
-                    <select class="form-select form-select-sm rounded-pill" style="min-width: 80px;"
-                        onchange="window.location.href=this.value">
+                    <select class="form-select form-select-sm rounded-pill" style="min-width: 80px;" onchange="window.location.href=this.value">
                         {% for i in entities.paginator.page_range %}
-                        <option value="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ i }}" {% if
-                            entities.number==i %}selected{% endif %}>
+                        <option value="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ i }}" {% if entities.number == i %}selected{% endif %}>
                             Page {{ i }}
                         </option>
                         {% endfor %}
                     </select>
                 </li>
                 <li class="page-item {% if not entities.has_next %}disabled{% endif %}">
-                    <a class="page-link"
-                        href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ entities.next_page_number|default:entities.paginator.num_pages }}"
-                        title="Next">
+                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ entities.next_page_number|default:entities.paginator.num_pages }}" title="Next">
                         <i class="fas fa-angle-right"></i>
                     </a>
                 </li>
                 <li class="page-item {% if not entities.has_next %}disabled{% endif %}">
-                    <a class="page-link"
-                        href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ entities.paginator.num_pages }}"
-                        title="Last Page">
+                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ entities.paginator.num_pages }}" title="Last Page">
                         <i class="fas fa-angle-double-right"></i>
                     </a>
                 </li>
@@ -229,18 +207,15 @@
                 <div class="mb-4">
                     <i class="fas fa-exclamation-triangle text-danger fa-4x mb-3"></i>
                     <h3 class="fw-bold">Delete All {{ entity_type|title }}s?</h3>
-                    <p class="text-muted">This action is irreversible. All current {{ entity_type }} records will be
-                        permanently removed from the system.</p>
+                    <p class="text-muted">This action is irreversible. All current {{ entity_type }} records will be permanently removed from the system.</p>
                 </div>
                 <div class="d-grid gap-2">
                     <form method="post" action="{% url 'delete_all_entities' %}">
                         {% csrf_token %}
                         <input type="hidden" name="entity_type" value="{{ entity_type }}">
-                        <button type="submit" class="btn btn-danger w-100 rounded-pill py-2 fw-bold">Yes, Delete
-                            Everything</button>
+                        <button type="submit" class="btn btn-danger w-100 rounded-pill py-2 fw-bold">Yes, Delete Everything</button>
                     </form>
-                    <button type="button" class="btn btn-light w-100 rounded-pill py-2"
-                        data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-light w-100 rounded-pill py-2" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
@@ -262,12 +237,12 @@
             return;
         }
         fetch(`?type=${currentType}&q=${encodeURIComponent(query)}&sort=${currentSort}`, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.results && data.results.length) {
-                    resultsDiv.innerHTML = data.results.map(item => `
+        .then(response => response.json())
+        .then(data => {
+            if (data.results && data.results.length) {
+                resultsDiv.innerHTML = data.results.map(item => `
                     <a href="#" class="list-group-item list-group-item-action py-3 border-0 border-bottom" data-id="${item.entity_id}">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
@@ -278,34 +253,34 @@
                         </div>
                     </a>
                 `).join('');
-                    resultsDiv.style.display = 'block';
-                    document.querySelectorAll('.list-group-item').forEach(el => {
-                        el.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            const name = el.querySelector('strong').innerText;
-                            searchInput.value = name;
-                            resultsDiv.style.display = 'none';
-                            window.location.href = `?type=${currentType}&q=${encodeURIComponent(name)}&sort=${currentSort}`;
-                        });
+                resultsDiv.style.display = 'block';
+                document.querySelectorAll('.list-group-item').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const name = el.querySelector('strong').innerText;
+                        searchInput.value = name;
+                        resultsDiv.style.display = 'none';
+                        window.location.href = `?type=${currentType}&q=${encodeURIComponent(name)}&sort=${currentSort}`;
                     });
-                } else {
-                    resultsDiv.style.display = 'none';
-                }
-            });
+                });
+            } else {
+                resultsDiv.style.display = 'none';
+            }
+        });
     }
 
-    searchInput.addEventListener('input', function () {
+    searchInput.addEventListener('input', function() {
         clearTimeout(timeout);
         timeout = setTimeout(() => fetchResults(this.value), 300);
     });
 
-    document.getElementById('searchBtn').addEventListener('click', function () {
+    document.getElementById('searchBtn').addEventListener('click', function() {
         const query = searchInput.value;
         window.location.href = `?type=${currentType}&q=${encodeURIComponent(query)}&sort=${currentSort}`;
     });
 
     // Close autocomplete on click outside
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', function(e) {
         if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
             resultsDiv.style.display = 'none';
         }
