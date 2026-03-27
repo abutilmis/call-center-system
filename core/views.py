@@ -343,7 +343,7 @@ def increase_lengths(request):
         return HttpResponse("✅ All text fields increased to 200 characters.")
     except Exception as e:
         return HttpResponse(f"❌ Error: {e}")    
-def debug_entity_list(request):
+def debug_entities_db(request):
     from core.models import Entity
     from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
     import traceback
