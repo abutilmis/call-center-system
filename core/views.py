@@ -41,47 +41,54 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 @login_required
 def entity_list(request):
-    entity_type = request.GET.get('type', 'agency')
-    query = request.GET.get('q', '')
-    sort = request.GET.get('sort', 'date_desc')
-
-    entities = Entity.objects.filter(entity_type=entity_type)
-
-    if query:
-        entities = entities.filter(
-            Q(name__icontains=query) | Q(phone__icontains=query) | Q(phone2__icontains=query)
-        )
-
-    # Sorting
-    sort_map = {
-        'name_asc': 'name',
-        'name_desc': '-name',
-        'date_asc': 'created_at',
-        'date_desc': '-created_at',
-    }
-    entities = entities.order_by(sort_map.get(sort, '-created_at'))
-
-    # AJAX autocomplete request
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        results = entities.values('entity_id', 'name', 'phone', 'phone2', 'city', 'woreda')[:20]
-        return JsonResponse({'results': list(results)})
-
-    # Pagination: 20 items per page
-    paginator = Paginator(entities, 20)
-    page = request.GET.get('page')
+    import traceback as _tb
     try:
-        entities_page = paginator.page(page)
-    except PageNotAnInteger:
-        entities_page = paginator.page(1)
-    except EmptyPage:
-        entities_page = paginator.page(paginator.num_pages)
+        entity_type = request.GET.get('type', 'agency')
+        query = request.GET.get('q', '')
+        sort = request.GET.get('sort', 'date_desc')
 
-    return render(request, 'entity_list.html', {
-        'entities': entities_page,
-        'query': query,
-        'entity_type': entity_type,
-        'sort': sort,
-    })
+        entities = Entity.objects.filter(entity_type=entity_type)
+
+        if query:
+            entities = entities.filter(
+                Q(name__icontains=query) | Q(phone__icontains=query) | Q(phone2__icontains=query)
+            )
+
+        # Sorting
+        sort_map = {
+            'name_asc': 'name',
+            'name_desc': '-name',
+            'date_asc': 'created_at',
+            'date_desc': '-created_at',
+        }
+        entities = entities.order_by(sort_map.get(sort, '-created_at'))
+
+        # AJAX autocomplete request
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            results = entities.values('entity_id', 'name', 'phone', 'phone2', 'city', 'woreda')[:20]
+            return JsonResponse({'results': list(results)})
+
+        # Pagination: 20 items per page
+        paginator = Paginator(entities, 20)
+        page = request.GET.get('page')
+        try:
+            entities_page = paginator.page(page)
+        except PageNotAnInteger:
+            entities_page = paginator.page(1)
+        except EmptyPage:
+            entities_page = paginator.page(paginator.num_pages)
+
+        return render(request, 'entity_list.html', {
+            'entities': entities_page,
+            'query': query,
+            'entity_type': entity_type,
+            'sort': sort,
+        })
+    except Exception:
+        return HttpResponse(
+            f"<h2>DEBUG — entity_list error</h2><pre>{_tb.format_exc()}</pre>",
+            status=500
+        )
 
 @login_required
 @supervisor_required
