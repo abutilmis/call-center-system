@@ -132,7 +132,7 @@
                 
                 <!-- Previous -->
                 <li class="page-item {% if not entities.has_previous %}disabled{% endif %}">
-                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ entities.previous_page_number|default:1 }}" title="Previous">
+                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={% if entities.has_previous %}{{ entities.previous_page_number }}{% else %}1{% endif %}" title="Previous">
                         <i class="fas fa-angle-left"></i>
                     </a>
                 </li>
@@ -150,7 +150,7 @@
 
                 <!-- Next -->
                 <li class="page-item {% if not entities.has_next %}disabled{% endif %}">
-                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={{ entities.next_page_number|default:entities.paginator.num_pages }}" title="Next">
+                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}&page={% if entities.has_next %}{{ entities.next_page_number }}{% else %}{{ entities.paginator.num_pages }}{% endif %}" title="Next">
                         <i class="fas fa-angle-right"></i>
                     </a>
                 </li>
