@@ -109,7 +109,8 @@ def upload_agencies(request):
         if form.is_valid():
             file = request.FILES['file']
             try:
-                df = pd.read_excel(file).fillna('')
+                # Read Excel, treat all columns as strings to avoid type conversion issues
+                df = pd.read_excel(file, engine='openpyxl', dtype=str)
                 df.columns = [str(col).strip().title() for col in df.columns]
 
                 required_cols = ['Name', 'Phone1', 'Phone2', 'City', 'Woreda']
@@ -125,22 +126,38 @@ def upload_agencies(request):
                 errors = 0
                 for idx, row in df.iterrows():
                     try:
-                        # Skip rows missing essential data
-                        if pd.isna(row['Name']) or pd.isna(row['Phone1']):
+                        # Clean each field: convert to string, handle NaN, replace non‑UTF‑8 chars
+                        name = str(row['Name']) if pd.notna(row['Name']) else ''
+                        phone1 = str(row['Phone1']) if pd.notna(row['Phone1']) else ''
+                        phone2 = str(row.get('Phone2', '')) if pd.notna(row.get('Phone2')) else ''
+                        city = str(row.get('City', '')) if pd.notna(row.get('City')) else ''
+                        woreda = str(row.get('Woreda', '')) if pd.notna(row.get('Woreda')) else ''
+
+                        # Replace any non‑UTF‑8 characters with '?'
+                        # (you can also use .encode('ascii', 'replace').decode('ascii') for stricter cleanup)
+                        name = name.encode('utf-8', 'replace').decode('utf-8')
+                        phone1 = phone1.encode('utf-8', 'replace').decode('utf-8')
+                        phone2 = phone2.encode('utf-8', 'replace').decode('utf-8')
+                        city = city.encode('utf-8', 'replace').decode('utf-8')
+                        woreda = woreda.encode('utf-8', 'replace').decode('utf-8')
+
+                        if not name or not phone1:
                             errors += 1
                             continue
+
                         Entity.objects.create(
                             entity_type='agency',
-                            name=row['Name'],
-                            phone=row['Phone1'],
-                            phone2=row.get('Phone2', ''),
-                            city=row.get('City', ''),
-                            woreda=row.get('Woreda', ''),
+                            name=name,
+                            phone=phone1,
+                            phone2=phone2,
+                            city=city,
+                            woreda=woreda,
                         )
                         created += 1
                     except Exception as e:
                         errors += 1
                         logger.warning(f"Row {idx+2} failed: {e}")
+
                 if errors:
                     messages.warning(request, f'{created} agencies imported. {errors} rows skipped due to errors.')
                 else:
