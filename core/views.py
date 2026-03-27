@@ -41,78 +41,83 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Entity
+import traceback
+from django.http import HttpResponse
 
 @login_required
 def entity_list(request):
-    entity_type = request.GET.get('type', 'agency')
-    query = request.GET.get('q', '')
-    sort = request.GET.get('sort', 'date_desc')
-
-    entities = Entity.objects.filter(entity_type=entity_type)
-
-    # Search
-    if query:
-        if entity_type == 'agency':
-            entities = entities.filter(
-                Q(name__icontains=query) | Q(phone__icontains=query) | Q(phone2__icontains=query)
-            )
-        elif entity_type == 'ocss':
-            entities = entities.filter(
-                Q(name__icontains=query) | Q(region__icontains=query) | Q(city__icontains=query) | Q(woreda__icontains=query)
-            )
-        elif entity_type == 'tvet':
-            entities = entities.filter(
-                Q(name__icontains=query) | Q(registration_id__icontains=query) | Q(location__icontains=query)
-            )
-        else:
-            entities = entities.filter(name__icontains=query)
-
-    # Sorting
-    sort_map = {
-        'name_asc': 'name',
-        'name_desc': '-name',
-        'date_asc': 'created_at',
-        'date_desc': '-created_at',
-    }
-    entities = entities.order_by(sort_map.get(sort, '-created_at'))
-
-    # AJAX autocomplete
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        if entity_type == 'ocss':
-            results = entities.values('entity_id', 'name', 'region', 'city', 'woreda')[:20]
-            # Normalize to match frontend expectations (phone, phone2, city, woreda)
-            results_list = []
-            for r in results:
-                results_list.append({
-                    'entity_id': r['entity_id'],
-                    'name': r['name'],
-                    'phone': r.get('region', '') or r.get('city', '') or r.get('woreda', ''),
-                    'phone2': '',
-                    'city': r.get('city', ''),
-                    'woreda': r.get('woreda', ''),
-                })
-            return JsonResponse({'results': results_list})
-        else:
-            results = entities.values('entity_id', 'name', 'phone', 'phone2', 'city', 'woreda')[:20]
-            return JsonResponse({'results': list(results)})
-
-    # Pagination
-    paginator = Paginator(entities, 20)
-    page = request.GET.get('page')
     try:
-        entities_page = paginator.page(page)
-    except PageNotAnInteger:
-        entities_page = paginator.page(1)
-    except EmptyPage:
-        entities_page = paginator.page(paginator.num_pages)
+        entity_type = request.GET.get('type', 'agency')
+        query = request.GET.get('q', '')
+        sort = request.GET.get('sort', 'date_desc')
 
-    return render(request, 'entity_list.html', {
-        'entities': entities_page,
-        'query': query,
-        'entity_type': entity_type,
-        'sort': sort,
-    })
+        entities = Entity.objects.filter(entity_type=entity_type)
 
+        # Search
+        if query:
+            if entity_type == 'agency':
+                entities = entities.filter(
+                    Q(name__icontains=query) | Q(phone__icontains=query) | Q(phone2__icontains=query)
+                )
+            elif entity_type == 'ocss':
+                entities = entities.filter(
+                    Q(name__icontains=query) | Q(region__icontains=query) | Q(city__icontains=query) | Q(woreda__icontains=query)
+                )
+            elif entity_type == 'tvet':
+                entities = entities.filter(
+                    Q(name__icontains=query) | Q(registration_id__icontains=query) | Q(location__icontains=query)
+                )
+            else:
+                entities = entities.filter(name__icontains=query)
+
+        # Sorting
+        sort_map = {
+            'name_asc': 'name',
+            'name_desc': '-name',
+            'date_asc': 'created_at',
+            'date_desc': '-created_at',
+        }
+        entities = entities.order_by(sort_map.get(sort, '-created_at'))
+
+        # AJAX autocomplete
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            if entity_type == 'ocss':
+                results = entities.values('entity_id', 'name', 'region', 'city', 'woreda')[:20]
+                # Normalize to match frontend expectations (phone, phone2, city, woreda)
+                results_list = []
+                for r in results:
+                    results_list.append({
+                        'entity_id': r['entity_id'],
+                        'name': r['name'],
+                        'phone': r.get('region', '') or r.get('city', '') or r.get('woreda', ''),
+                        'phone2': '',
+                        'city': r.get('city', ''),
+                        'woreda': r.get('woreda', ''),
+                    })
+                return JsonResponse({'results': results_list})
+            else:
+                results = entities.values('entity_id', 'name', 'phone', 'phone2', 'city', 'woreda')[:20]
+                return JsonResponse({'results': list(results)})
+            
+
+        # Pagination
+        paginator = Paginator(entities, 20)
+        page = request.GET.get('page')
+        try:
+            entities_page = paginator.page(page)
+        except PageNotAnInteger:
+            entities_page = paginator.page(1)
+        except EmptyPage:
+            entities_page = paginator.page(paginator.num_pages)
+
+        return render(request, 'entity_list.html', {
+            'entities': entities_page,
+            'query': query,
+            'entity_type': entity_type,
+            'sort': sort,
+        })
+    except Exception as e:
+        return HttpResponse(f"<pre>{traceback.format_exc()}</pre>")
 
 @login_required
 @supervisor_required
