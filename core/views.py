@@ -313,24 +313,10 @@ def create_supervisor(request):
     user.role = role
     user.save()
     return HttpResponse(f"Supervisor created!<br>Username: {username}<br>Password: {password}<br>Please log in and change your password.")
-    from django.db import connection
-from django.http import HttpResponse
-
-def check_columns(request):
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name='core_entity'")
-        columns = [row[0] for row in cursor.fetchall()]
-    return HttpResponse(f"Columns in core_entity: {columns}")
-from django.db import connection
-from django.http import HttpResponse
-
-def fix_entity_columns(request):
+def debug_entities(request):
+    from core.models import Entity
     try:
-        with connection.cursor() as cursor:
-            # PostgreSQL syntax – adds columns if they don't already exist
-            cursor.execute("ALTER TABLE core_entity ADD COLUMN IF NOT EXISTS phone2 varchar(100);")
-            cursor.execute("ALTER TABLE core_entity ADD COLUMN IF NOT EXISTS city varchar(100);")
-            cursor.execute("ALTER TABLE core_entity ADD COLUMN IF NOT EXISTS woreda varchar(100);")
-        return HttpResponse("✅ All columns added or already exist.")
+        entities = Entity.objects.all()[:5]
+        return HttpResponse(f"Success: {len(entities)} entities retrieved.")
     except Exception as e:
-        return HttpResponse(f"❌ Error: {e}")    
+        return HttpResponse(f"Error: {e}")
