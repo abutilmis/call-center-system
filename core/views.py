@@ -313,3 +313,11 @@ def create_supervisor(request):
     user.role = role
     user.save()
     return HttpResponse(f"Supervisor created!<br>Username: {username}<br>Password: {password}<br>Please log in and change your password.")
+    from django.db import connection
+from django.http import HttpResponse
+
+def check_columns(request):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name='core_entity'")
+        columns = [row[0] for row in cursor.fetchall()]
+    return HttpResponse(f"Columns in core_entity: {columns}")
