@@ -331,18 +331,23 @@ def create_supervisor(request):
     user.save()
     return HttpResponse(f"Supervisor created!<br>Username: {username}<br>Password: {password}<br>Please log in and change your password.")
 def test_paginated(request):
-    from core.models import Entity
-    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-    entities = Entity.objects.filter(entity_type='agency').order_by('id')
-    paginator = Paginator(entities, 20)
-    page = request.GET.get('page', 1)
+    import traceback
     try:
-        page_obj = paginator.page(page)
-    except EmptyPage:
-        page_obj = paginator.page(paginator.num_pages)
+        from core.models import Entity
+        from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-    html = f"<h1>Page {page_obj.number} of {paginator.num_pages}</h1><ul>"
-    for e in page_obj:
-        html += f"<li>{e.name} - {e.phone} - {e.city} - {e.woreda}</li>"
-    html += "</ul>"
-    return HttpResponse(html)
+        entities = Entity.objects.filter(entity_type='agency').order_by('id')
+        paginator = Paginator(entities, 20)
+        page = request.GET.get('page', 1)
+        try:
+            page_obj = paginator.page(page)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+
+        html = f"<h1>Page {page_obj.number} of {paginator.num_pages}</h1><ul>"
+        for e in page_obj:
+            html += f"<li>{e.name} - {e.phone} - {e.city} - {e.woreda}</li>"
+        html += "</ul>"
+        return HttpResponse(html)
+    except Exception as e:
+        return HttpResponse(f"<pre>{traceback.format_exc()}</pre>")
