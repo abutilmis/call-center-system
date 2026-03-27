@@ -52,15 +52,20 @@
                         <td>{{ req.agent.username }}</td>
                         <td class="text-muted small">{{ req.created_at|date:"M d, Y" }}</td>
                         <td class="text-end pe-4">
-                            {% if user.role == 'supervisor' and req.status == 'pending' %}
-                            <a href="{% url 'client_correction_approve' req.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                Review
-                            </a>
-                            {% else %}
-                            <a href="{% url 'client_correction_detail' req.pk %}" class="btn btn-sm btn-light rounded-pill px-3">
-                                View
-                            </a>
-                            {% endif %}
+                            <div class="d-flex justify-content-end gap-2">
+                                {% if user.role == 'supervisor' and req.status == 'pending' %}
+                                <a href="{% url 'client_correction_approve' req.pk %}" class="btn btn-sm btn-primary rounded-pill px-3" title="Review">Review</a>
+                                {% endif %}
+                                
+                                <a href="{% url 'client_correction_detail' req.pk %}" class="btn btn-sm btn-light rounded-pill px-3" title="View">View</a>
+                                
+                                {% if req.status == 'pending' %}
+                                    {% if request.user.id == req.agent.id or request.user.role == 'supervisor' %}
+                                    <a href="{% url 'client_correction_update' req.pk %}" class="btn btn-sm btn-outline-warning rounded-circle px-2" title="Edit"><i class="fas fa-edit"></i></a>
+                                    <a href="{% url 'client_correction_delete' req.pk %}" class="btn btn-sm btn-outline-danger rounded-circle px-2" title="Delete"><i class="fas fa-trash"></i></a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
