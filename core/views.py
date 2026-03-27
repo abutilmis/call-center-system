@@ -395,24 +395,25 @@ def upload_ossc(request):
             file = request.FILES['file']
             try:
                 df = pd.read_excel(file, engine='openpyxl', dtype=str)
-                # Normalize column names: strip, convert to lower, replace spaces with underscore
-                df.columns = [str(col).strip().lower().replace(' ', '_') for col in df.columns]
+                # Normalize column names: strip, lowercase, replace spaces and slashes with underscores
+                df.columns = [str(col).strip().lower().replace(' ', '_').replace('/', '_') for col in df.columns]
 
-                # Define expected normalized names
-                required_map = {
+                # Expected normalized column names
+                required_cols = {
                     'region': 'region',
-                    'zone/city': 'zone_city',
-                    'woreda/sub-city': 'woreda_sub_city',
-                    'ossc name': 'ossc_name',
+                    'zone_city': 'zone_city',
+                    'woreda_sub_city': 'woreda_sub_city',
+                    'ossc_name': 'ossc_name',
                 }
 
-                # Check which required columns are present (normalized)
-                present = {col for col in df.columns}
-                missing = [req for req in required_map.keys() if required_map[req] not in present]
+                # Check which required columns are present
+                present = set(df.columns)
+                missing = [name for name in required_cols.values() if name not in present]
                 if missing:
                     messages.error(
                         request,
-                        f'File must contain columns: {list(required_map.keys())}. Found: {list(df.columns)}. Missing: {missing}'
+                        f'File must contain columns: {list(required_cols.keys())}. '
+                        f'Found: {list(df.columns)}. Missing: {missing}'
                     )
                     return redirect('upload_ossc')
 
@@ -422,10 +423,11 @@ def upload_ossc(request):
 
                 for idx, row in df.iterrows():
                     try:
+                        # Use the normalized column names to access data
                         region = str(row['region']) if pd.notna(row['region']) else ''
-                        zone = str(row['zone/city']) if pd.notna(row['zone/city']) else ''
-                        woreda = str(row['woreda/sub-city']) if pd.notna(row['woreda/sub-city']) else ''
-                        name = str(row['ossc name']) if pd.notna(row['ossc name']) else ''
+                        zone = str(row['zone_city']) if pd.notna(row['zone_city']) else ''
+                        woreda = str(row['woreda_sub_city']) if pd.notna(row['woreda_sub_city']) else ''
+                        name = str(row['ossc_name']) if pd.notna(row['ossc_name']) else ''
 
                         # Clean encoding
                         region = region.encode('utf-8', 'replace').decode('utf-8')
@@ -464,7 +466,7 @@ def upload_ossc(request):
             return redirect('entity_list')
     else:
         form = OSSCUploadForm()
-    return render(request, 'ossc_upload.html', {'form': form})           
+    return render(request, 'ossc_upload.html', {'form': form})          
 def debug_entities_db(request):
     from core.models import Entity
     from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
