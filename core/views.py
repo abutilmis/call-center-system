@@ -4,10 +4,11 @@ from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponse
 from django.contrib.auth import get_user_model
-from .models import Entity, CorrectionRequest, KnowledgeBase, Announcement
-from .forms import EntityForm, CorrectionRequestForm, KnowledgeBaseForm, AnnouncementForm, AgentRegistrationForm, OSSCUploadForm
+from .models import Entity, ClientCorrection, KnowledgeBase, Announcement
+from .forms import EntityForm, KnowledgeBaseForm, AnnouncementForm, AgentRegistrationForm, OSSCUploadForm
 from django.db import connection
 from django.http import HttpResponse
+import json
 
 User = get_user_model()
 
@@ -27,7 +28,7 @@ def dashboard(request):
         'agencies_count': Entity.objects.filter(entity_type='agency').count(),
         'tvet_count': Entity.objects.filter(entity_type='tvet').count(),
         'ocss_count': Entity.objects.filter(entity_type='ocss').count(),
-        'pending_corrections': CorrectionRequest.objects.filter(status='pending').count(),
+        'pending_corrections': ClientCorrection.objects.filter(status='pending').count(),
         'knowledge_count': KnowledgeBase.objects.count(),
         'announcements': Announcement.objects.order_by('-timestamp')[:5],
         'recent_entities': Entity.objects.order_by('-created_at')[:5],
@@ -266,33 +267,52 @@ def entity_delete(request, pk):
         return redirect('entity_list')
     return render(request, 'entity_confirm_delete.html', {'entity': entity})
 
-# Correction Requests
+# Client Correction Requests
 @login_required
-def correction_list(request):
+def client_correction_list(request):
     if request.user.role == 'supervisor':
-        corrections = CorrectionRequest.objects.all().order_by('-created_at')
+        corrections = ClientCorrection.objects.all().order_by('-created_at')
     else:
-        corrections = CorrectionRequest.objects.filter(agent=request.user).order_by('-created_at')
-    return render(request, 'correction_list.html', {'corrections': corrections})
+        corrections = ClientCorrection.objects.filter(agent=request.user).order_by('-created_at')
+    return render(request, 'client_correction_list.html', {'corrections': corrections})
 
 @login_required
-def correction_create(request):
+def client_correction_create(request):
     if request.method == 'POST':
-        form = CorrectionRequestForm(request.POST)
-        if form.is_valid():
-            correction = form.save(commit=False)
-            correction.agent = request.user
-            correction.save()
-            messages.success(request, "Correction request submitted.")
-            return redirect('correction_list')
-    else:
-        form = CorrectionRequestForm()
-    return render(request, 'correction_form.html', {'form': form, 'title': 'Request Correction'})
+        correction_type = request.POST.get('correction_type')
+        phone = request.POST.get('phone')
+        labor_id = request.POST.get('labor_id', '')
+        old_data = request.POST.get('old_data', '{}')
+        new_data = request.POST.get('new_data', '{}')
+        
+        try:
+            old_data_dict = json.loads(old_data)
+            new_data_dict = json.loads(new_data)
+        except ValueError:
+            old_data_dict = {}
+            new_data_dict = {}
+
+        if correction_type and phone:
+            ClientCorrection.objects.create(
+                correction_type=correction_type,
+                phone=phone,
+                labor_id=labor_id,
+                old_data=old_data_dict,
+                new_data=new_data_dict,
+                agent=request.user,
+                status='pending'
+            )
+            messages.success(request, "Client correction request submitted successfully.")
+            return redirect('client_correction_list')
+        else:
+            messages.error(request, "Please fill in all required fields.")
+            
+    return render(request, 'client_correction_form.html', {'title': 'New Client Correction'})
 
 @login_required
 @supervisor_required
-def correction_approve(request, pk):
-    correction = get_object_or_404(CorrectionRequest, pk=pk)
+def client_correction_approve(request, pk):
+    correction = get_object_or_404(ClientCorrection, pk=pk)
     if request.method == 'POST':
         comment = request.POST.get('comment', '')
         status = request.POST.get('status')
@@ -300,14 +320,17 @@ def correction_approve(request, pk):
             correction.status = status
             correction.supervisor_comment = comment
             correction.save()
-            if status == 'approved':
-                # Apply the correction to the entity
-                entity = correction.entity
-                setattr(entity, correction.field_to_correct, correction.new_value)
-                entity.save()
             messages.success(request, f"Request {status}.")
-            return redirect('correction_list')
-    return render(request, 'correction_approve.html', {'correction': correction})
+            return redirect('client_correction_list')
+    return render(request, 'client_correction_approve.html', {'correction': correction})
+
+@login_required
+def client_correction_detail(request, pk):
+    correction = get_object_or_404(ClientCorrection, pk=pk)
+    if request.user.role != 'supervisor' and correction.agent != request.user:
+        messages.error(request, "You don't have permission to view this request.")
+        return redirect('client_correction_list')
+    return render(request, 'client_correction_detail.html', {'correction': correction})
 
 # Knowledge Base
 @login_required

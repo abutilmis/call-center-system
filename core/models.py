@@ -59,28 +59,34 @@ class Entity(models.Model):
         return reverse('entity_detail', args=[self.entity_id])
 
 
-class CorrectionRequest(models.Model):
+class ClientCorrection(models.Model):
+    TYPE_CHOICES = (
+        ('name', 'Name'),
+        ('dob', 'Date of Birth'),
+        ('sex', 'Sex'),
+    )
     STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
     )
     request_id = models.AutoField(primary_key=True)
-    agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name='correction_requests')
-    entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name='correction_requests')
-    field_to_correct = models.CharField(max_length=50)
-    old_value = models.TextField()
-    new_value = models.TextField()
+    correction_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    phone = models.CharField(max_length=200)
+    labor_id = models.CharField(max_length=200, blank=True)
+    old_data = models.JSONField(default=dict)
+    new_data = models.JSONField(default=dict)
+    agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name='client_corrections')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     supervisor_comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Request {self.request_id} - {self.entity.name} - {self.status}"
+        return f"Request {self.request_id} - {self.get_correction_type_display()} - {self.status}"
 
     def get_absolute_url(self):
-        return reverse('correction_detail', args=[self.request_id])
+        return reverse('client_correction_detail', args=[self.request_id])
 
 
 class KnowledgeBase(models.Model):

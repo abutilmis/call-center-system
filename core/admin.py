@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Entity, CorrectionRequest, KnowledgeBase, Announcement
+from .models import User, Entity, ClientCorrection, KnowledgeBase, Announcement
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'role', 'is_staff')
@@ -11,11 +11,11 @@ class EntityAdmin(admin.ModelAdmin):
     search_fields = ('name', 'phone')
     list_filter = ('entity_type',)
 
-class CorrectionRequestAdmin(admin.ModelAdmin):
-    list_display = ('request_id', 'agent', 'entity', 'status', 'created_at')
-    list_filter = ('status',)
-    search_fields = ('agent__username', 'entity__name')
-    raw_id_fields = ('agent', 'entity')
+class ClientCorrectionAdmin(admin.ModelAdmin):
+    list_display = ('request_id', 'agent', 'correction_type', 'phone', 'status', 'created_at')
+    list_filter = ('correction_type', 'status')
+    search_fields = ('agent__username', 'phone')
+    raw_id_fields = ('agent',)
 
 class KnowledgeBaseAdmin(admin.ModelAdmin):
     list_display = ('kb_id', 'question', 'category', 'created_by', 'created_at')
@@ -28,6 +28,6 @@ class AnnouncementAdmin(admin.ModelAdmin):
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Entity, EntityAdmin)
-admin.site.register(CorrectionRequest, CorrectionRequestAdmin)
+admin.site.register(ClientCorrection, ClientCorrectionAdmin)
 admin.site.register(KnowledgeBase, KnowledgeBaseAdmin)
 admin.site.register(Announcement, AnnouncementAdmin)

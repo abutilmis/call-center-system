@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard-wrapper">
+    <div class="activity-card mb-4 p-4 border-0 shadow-sm rounded-4">
+        <h3 class="fw-bold mb-3"><i class="fas fa-plus me-2 text-primary"></i> New Client Correction</h3>
+        <p class="text-muted">Select the type of correction, enter the client's phone and labor ID, then provide the old and new data.</p>
+        
+        <form method="post" id="correctionForm">
+            {% csrf_token %}
+            <input type="hidden" name="correction_type" id="correctionType" value="">
+            <input type="hidden" name="old_data" id="oldData" value="{}">
+            <input type="hidden" name="new_data" id="newData" value="{}">
+            
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Client Phone *</label>
+                    <input type="text" name="phone" id="clientPhone" class="form-control rounded-pill px-4" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Labor ID</label>
+                    <input type="text" name="labor_id" class="form-control rounded-pill px-4">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold">Correction Type *</label>
+                <div class="d-flex gap-3 flex-wrap">
+                    <button type="button" class="btn btn-outline-primary type-btn rounded-pill px-4 mb-2" data-type="name">
+                        <i class="fas fa-user me-2"></i>Name
+                    </button>
+                    <button type="button" class="btn btn-outline-primary type-btn rounded-pill px-4 mb-2" data-type="dob">
+                        <i class="fas fa-calendar me-2"></i>Date of Birth
+                    </button>
+                    <button type="button" class="btn btn-outline-primary type-btn rounded-pill px-4 mb-2" data-type="sex">
+                        <i class="fas fa-venus-mars me-2"></i>Sex
+                    </button>
+                </div>
+            </div>
+
+            <div id="dynamicFields" class="row g-4" style="display: none;">
+                <!-- Filled via JS -->
+            </div>
+
+            <div class="mt-5 text-end">
+                <a href="{% url 'client_correction_list' %}" class="btn btn-light rounded-pill px-4 py-2 me-2">Cancel</a>
+                <button type="button" class="btn btn-primary rounded-pill px-5 py-2 fw-bold" id="submitBtn" disabled>
+                    <i class="fas fa-paper-plane me-2"></i>Submit Request
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const fieldsMap = {
+        'name': [
+            { id: 'first_name', label: 'First Name' },
+            { id: 'father_name', label: 'Father Name' },
+            { id: 'grandfather_name', label: 'Grandfather Name' }
+        ],
+        'dob': [
+            { id: 'dob', label: 'Date of Birth (YYYY-MM-DD)' }
+        ],
+        'sex': [
+            { id: 'sex', label: 'Sex (M/F)' }
+        ]
+    };
+
+    const typeBtns = document.querySelectorAll('.type-btn');
+    const correctionType = document.getElementById('correctionType');
+    const dynamicFields = document.getElementById('dynamicFields');
+    const submitBtn = document.getElementById('submitBtn');
+    const form = document.getElementById('correctionForm');
+
+    typeBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            typeBtns.forEach(b => b.classList.remove('active', 'btn-primary'));
+            typeBtns.forEach(b => b.classList.add('btn-outline-primary'));
+            
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('active', 'btn-primary');
+            
+            const type = this.getAttribute('data-type');
+            correctionType.value = type;
+            
+            renderFields(type);
+            dynamicFields.style.display = 'flex';
+            submitBtn.disabled = false;
+        });
+    });
+
+    function renderFields(type) {
+        dynamicFields.innerHTML = '';
+        const fields = fieldsMap[type];
+        
+        const oldCol = document.createElement('div');
+        oldCol.className = 'col-md-6 border-end pe-4';
+        oldCol.innerHTML = '<h5 class="fw-bold text-danger mb-4"><i class="fas fa-times-circle me-2"></i>Current Data (Old)</h5>';
+        
+        const newCol = document.createElement('div');
+        newCol.className = 'col-md-6 ps-4';
+        newCol.innerHTML = '<h5 class="fw-bold text-success mb-4"><i class="fas fa-check-circle me-2"></i>Corrected Data (New)</h5>';
+
+        fields.forEach(f => {
+            oldCol.innerHTML += `
+                <div class="mb-3">
+                    <label class="form-label">${f.label}</label>
+                    <input type="text" class="form-control rounded-pill px-3 old-input" data-key="${f.id}" placeholder="Current ${f.label.toLowerCase()}">
+                </div>
+            `;
+            newCol.innerHTML += `
+                <div class="mb-3">
+                    <label class="form-label">${f.label}</label>
+                    <input type="text" class="form-control rounded-pill px-3 new-input" data-key="${f.id}" placeholder="New ${f.label.toLowerCase()}">
+                </div>
+            `;
+        });
+        
+        dynamicFields.appendChild(oldCol);
+        dynamicFields.appendChild(newCol);
+    }
+
+    submitBtn.addEventListener('click', function() {
+        if (!document.getElementById('clientPhone').value) {
+            alert('Client Phone is required.');
+            return;
+        }
+
+        const oldData = {};
+        const newData = {};
+        let hasChanges = false;
+        
+        document.querySelectorAll('.old-input').forEach(input => {
+            if (input.value) oldData[input.getAttribute('data-key')] = input.value;
+        });
+        document.querySelectorAll('.new-input').forEach(input => {
+            if (input.value) {
+                newData[input.getAttribute('data-key')] = input.value;
+                hasChanges = true;
+            }
+        });
+
+        if (!hasChanges) {
+            alert("You must provide at least one corrected (New) value to submit a request.");
+            return;
+        }
+
+        document.getElementById('oldData').value = JSON.stringify(oldData);
+        document.getElementById('newData').value = JSON.stringify(newData);
+        
+        form.submit();
+    });
+</script>
+{% endblock %}
