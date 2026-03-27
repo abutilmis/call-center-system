@@ -330,14 +330,19 @@ def create_supervisor(request):
     user.role = role
     user.save()
     return HttpResponse(f"Supervisor created!<br>Username: {username}<br>Password: {password}<br>Please log in and change your password.")
-def debug_entities_db(request):
+def test_paginated(request):
     from core.models import Entity
-    import traceback
-
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    entities = Entity.objects.filter(entity_type='agency').order_by('id')
+    paginator = Paginator(entities, 20)
+    page = request.GET.get('page', 1)
     try:
-        count = Entity.objects.count()
-        # Try to fetch all and iterate to see if any row causes error
-        all_entities = list(Entity.objects.all())
-        return HttpResponse(f"Total entities: {count}<br>All fetched successfully.")
-    except Exception as e:
-        return HttpResponse(f"Error: {e}<br><pre>{traceback.format_exc()}</pre>")
+        page_obj = paginator.page(page)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    html = f"<h1>Page {page_obj.number} of {paginator.num_pages}</h1><ul>"
+    for e in page_obj:
+        html += f"<li>{e.name} - {e.phone} - {e.city} - {e.woreda}</li>"
+    html += "</ul>"
+    return HttpResponse(html)
