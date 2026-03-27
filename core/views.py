@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 from .models import Entity, CorrectionRequest, KnowledgeBase, Announcement
-from .forms import EntityForm, CorrectionRequestForm, KnowledgeBaseForm, AnnouncementForm, AgentRegistrationForm
+from .forms import EntityForm, CorrectionRequestForm, KnowledgeBaseForm, AnnouncementForm, AgentRegistrationForm, OSSCUploadForm
 from django.db import connection
 from django.http import HttpResponse
 
@@ -38,6 +38,9 @@ from django.http import JsonResponse
 from django.db.models import Q
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import Entity
 
 @login_required
 def entity_list(request):
@@ -47,10 +50,22 @@ def entity_list(request):
 
     entities = Entity.objects.filter(entity_type=entity_type)
 
+    # Search
     if query:
-        entities = entities.filter(
-            Q(name__icontains=query) | Q(phone__icontains=query) | Q(phone2__icontains=query)
-        )
+        if entity_type == 'agency':
+            entities = entities.filter(
+                Q(name__icontains=query) | Q(phone__icontains=query) | Q(phone2__icontains=query)
+            )
+        elif entity_type == 'ocss':
+            entities = entities.filter(
+                Q(name__icontains=query) | Q(region__icontains=query) | Q(city__icontains=query) | Q(woreda__icontains=query)
+            )
+        elif entity_type == 'tvet':
+            entities = entities.filter(
+                Q(name__icontains=query) | Q(registration_id__icontains=query) | Q(location__icontains=query)
+            )
+        else:
+            entities = entities.filter(name__icontains=query)
 
     # Sorting
     sort_map = {
@@ -61,12 +76,27 @@ def entity_list(request):
     }
     entities = entities.order_by(sort_map.get(sort, '-created_at'))
 
-    # AJAX autocomplete request
+    # AJAX autocomplete
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        results = entities.values('entity_id', 'name', 'phone', 'phone2', 'city', 'woreda')[:20]
-        return JsonResponse({'results': list(results)})
+        if entity_type == 'ocss':
+            results = entities.values('entity_id', 'name', 'region', 'city', 'woreda')[:20]
+            # Normalize to match frontend expectations (phone, phone2, city, woreda)
+            results_list = []
+            for r in results:
+                results_list.append({
+                    'entity_id': r['entity_id'],
+                    'name': r['name'],
+                    'phone': r.get('region', '') or r.get('city', '') or r.get('woreda', ''),
+                    'phone2': '',
+                    'city': r.get('city', ''),
+                    'woreda': r.get('woreda', ''),
+                })
+            return JsonResponse({'results': results_list})
+        else:
+            results = entities.values('entity_id', 'name', 'phone', 'phone2', 'city', 'woreda')[:20]
+            return JsonResponse({'results': list(results)})
 
-    # Pagination: 20 items per page
+    # Pagination
     paginator = Paginator(entities, 20)
     page = request.GET.get('page')
     try:
@@ -348,7 +378,78 @@ def increase_lengths(request):
             cursor.execute("ALTER TABLE core_entity ALTER COLUMN woreda TYPE varchar(200);")
         return HttpResponse("✅ All text fields increased to 200 characters.")
     except Exception as e:
-        return HttpResponse(f"❌ Error: {e}")    
+        return HttpResponse(f"❌ Error: {e}")
+from .forms import OSSCUploadForm
+
+@login_required
+@supervisor_required
+def upload_ossc(request):
+    if request.method == 'POST':
+        form = OSSCUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = request.FILES['file']
+            try:
+                df = pd.read_excel(file, engine='openpyxl', dtype=str)
+                df.columns = [str(col).strip().title() for col in df.columns]
+
+                required_cols = ['Region', 'Zone/City', 'Woreda/Sub-City', 'OSSC Name']
+                missing = [col for col in required_cols if col not in df.columns]
+                if missing:
+                    messages.error(
+                        request,
+                        f'File must contain columns: {required_cols}. Found: {list(df.columns)}. Missing: {missing}'
+                    )
+                    return redirect('upload_ossc')
+
+                entities_to_create = []
+                created = 0
+                errors = 0
+
+                for idx, row in df.iterrows():
+                    try:
+                        region = str(row['Region']) if pd.notna(row['Region']) else ''
+                        zone = str(row['Zone/City']) if pd.notna(row['Zone/City']) else ''
+                        woreda = str(row['Woreda/Sub-City']) if pd.notna(row['Woreda/Sub-City']) else ''
+                        name = str(row['OSSC Name']) if pd.notna(row['OSSC Name']) else ''
+
+                        # Clean encoding
+                        region = region.encode('utf-8', 'replace').decode('utf-8')
+                        zone = zone.encode('utf-8', 'replace').decode('utf-8')
+                        woreda = woreda.encode('utf-8', 'replace').decode('utf-8')
+                        name = name.encode('utf-8', 'replace').decode('utf-8')
+
+                        if not name:
+                            errors += 1
+                            continue
+
+                        entities_to_create.append(
+                            Entity(
+                                entity_type='ocss',
+                                name=name,
+                                region=region,
+                                city=zone,
+                                woreda=woreda,
+                                phone='',  # OCSS has no phone in this schema
+                            )
+                        )
+                        created += 1
+                    except Exception as e:
+                        errors += 1
+                        logger.warning(f"Row {idx+2} failed: {e}")
+
+                if entities_to_create:
+                    Entity.objects.bulk_create(entities_to_create)
+
+                if errors:
+                    messages.warning(request, f'{created} OCSS entries imported. {errors} rows skipped.')
+                else:
+                    messages.success(request, f'{created} OCSS entries imported successfully.')
+            except Exception as e:
+                messages.error(request, f'Error processing file: {str(e)}')
+            return redirect('entity_list')
+    else:
+        form = OSSCUploadForm()
+    return render(request, 'ossc_upload.html', {'form': form})            
 def debug_entities_db(request):
     from core.models import Entity
     from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger

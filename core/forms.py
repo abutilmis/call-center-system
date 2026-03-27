@@ -14,7 +14,7 @@ class EntityForm(forms.ModelForm):
     class Meta:
         model = Entity
         fields = [
-            'entity_type', 'name', 'phone', 'phone2', 'city', 'woreda',
+            'entity_type', 'name', 'phone', 'phone2', 'city', 'woreda', 'region',
             'location', 'registration_id', 'additional_info'
         ]
         widgets = {
@@ -80,4 +80,9 @@ class AgencyUploadForm(forms.Form):
     file = forms.FileField(
         label='Excel file',
         help_text='Upload an Excel (.xlsx) file with columns: Name, Phone1, Phone2, City, Woreda'
+    )    
+class OSSCUploadForm(forms.Form):
+    file = forms.FileField(
+        label='Excel file',
+        help_text='Upload an Excel (.xlsx) file with columns: Region, Zone/City, Woreda/Sub-City, OSSC Name'
     )    

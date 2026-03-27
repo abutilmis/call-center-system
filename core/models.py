@@ -44,7 +44,8 @@ class Entity(models.Model):
     phone = models.CharField(max_length=200)
     phone2 = models.CharField(max_length=200, blank=True, null=True)          # new for agency
     city = models.CharField(max_length=200, blank=True, null=True)           # new for agency
-    woreda = models.CharField(max_length=200, blank=True, null=True)         # new for agency
+    woreda = models.CharField(max_length=200, blank=True, null=True)
+    region = models.CharField(max_length=200, blank=True, null=True)         # new for agency
     location = models.CharField(max_length=200, blank=True)
     registration_id = models.CharField(max_length=200, blank=True)
     additional_info = models.JSONField(default=dict, blank=True)

@@ -18,14 +18,14 @@
     <div class="activity-card">
         <form method="post" class="p-2">
             {% csrf_token %}
-            
+
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
                     <div class="form-group mb-0">
                         <label class="form-label fw-bold text-muted small ps-2">ENTITY TYPE</label>
                         {{ form.entity_type }}
                         {% if form.entity_type.errors %}
-                            <div class="text-danger small mt-1 ps-2">{{ form.entity_type.errors.0 }}</div>
+                        <div class="text-danger small mt-1 ps-2">{{ form.entity_type.errors.0 }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -92,14 +92,38 @@
                     </div>
                 </div>
             </div>
-
+            <div id="ocssFields" style="display: none;">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">Region</label>
+                            {{ form.region }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">Zone/City</label>
+                            {{ form.city }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">Woreda/Sub-City</label>
+                            {{ form.woreda }}
+                        </div>
+                    </div>
+                </div>
+            </div>
             <hr class="my-4 opacity-25">
 
             <!-- Additional info -->
             <div class="row g-4 mb-5">
                 <div class="col-12">
                     <div class="form-group mb-0">
-                        <label class="form-label fw-bold text-muted small ps-2">ADDITIONAL INFORMATION (JSON FORMAT)</label>
+                        <label class="form-label fw-bold text-muted small ps-2">ADDITIONAL INFORMATION (JSON
+                            FORMAT)</label>
                         {{ form.additional_info }}
                         <small class="text-muted ps-2 mt-1 d-block">Optional technical data in JSON format.</small>
                     </div>
@@ -118,22 +142,30 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const entityTypeSelect = document.getElementById('id_entity_type');
         const agencyDiv = document.getElementById('agencyFields');
         const tvetOcssDiv = document.getElementById('tvetOcssFields');
+        const ocssDiv = document.getElementById('ocssFields');
 
         function toggleFields() {
             const selected = entityTypeSelect.value;
             if (selected === 'agency') {
                 agencyDiv.style.display = 'block';
                 tvetOcssDiv.style.display = 'none';
-            } else if (selected === 'tvet' || selected === 'ocss') {
+                ocssDiv.style.display = 'none';
+            } else if (selected === 'tvet') {
                 agencyDiv.style.display = 'none';
                 tvetOcssDiv.style.display = 'block';
+                ocssDiv.style.display = 'none';
+            } else if (selected === 'ocss') {
+                agencyDiv.style.display = 'none';
+                tvetOcssDiv.style.display = 'none';
+                ocssDiv.style.display = 'block';
             } else {
                 agencyDiv.style.display = 'none';
                 tvetOcssDiv.style.display = 'none';
+                ocssDiv.style.display = 'none';
             }
         }
 
@@ -141,4 +173,4 @@
         toggleFields(); // initial call
     });
 </script>
-{% endblock %}
+{% endblock %}
