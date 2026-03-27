@@ -39,7 +39,7 @@ class Entity(models.Model):
         ('ocss', 'OCSS'),
     )
     entity_id = models.AutoField(primary_key=True)
-    entity_type = models.CharField(max_length=20, choices=ENTITY_TYPES, default='agency')
+    entity_type = models.CharField(max_length=200, choices=ENTITY_TYPES, default='agency')
     name = models.CharField(max_length=200)
     phone = models.CharField(max_length=200)
     phone2 = models.CharField(max_length=200, blank=True, null=True)          # new for agency

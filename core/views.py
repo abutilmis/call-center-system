@@ -330,10 +330,14 @@ def create_supervisor(request):
     user.role = role
     user.save()
     return HttpResponse(f"Supervisor created!<br>Username: {username}<br>Password: {password}<br>Please log in and change your password.")
-def debug_entities(request):
+def debug_entities_db(request):
     from core.models import Entity
+    import traceback
+
     try:
-        entities = Entity.objects.all()[:5]
-        return HttpResponse(f"Success: {len(entities)} entities retrieved.")
+        count = Entity.objects.count()
+        # Try to fetch all and iterate to see if any row causes error
+        all_entities = list(Entity.objects.all())
+        return HttpResponse(f"Total entities: {count}<br>All fetched successfully.")
     except Exception as e:
-        return HttpResponse(f"Error: {e}")
+        return HttpResponse(f"Error: {e}<br><pre>{traceback.format_exc()}</pre>")
