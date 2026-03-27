@@ -42,7 +42,7 @@ class Entity(models.Model):
     entity_type = models.CharField(max_length=20, choices=ENTITY_TYPES, default='agency')
     name = models.CharField(max_length=200)
     phone = models.CharField(max_length=20)
-    phone2 = models.CharField(max_length=20, blank=True, null=True)          # new for agency
+    phone2 = models.CharField(max_length=100, blank=True, null=True)          # new for agency
     city = models.CharField(max_length=100, blank=True, null=True)           # new for agency
     woreda = models.CharField(max_length=100, blank=True, null=True)         # new for agency
     location = models.CharField(max_length=200, blank=True)
