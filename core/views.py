@@ -53,6 +53,22 @@ def entity_list(request):
 
         entities = Entity.objects.filter(entity_type=entity_type)
 
+        # AJAX distinct filters
+        if request.GET.get('action') == 'get_filters':
+            column = request.GET.get('column')
+            if column:
+                values = entities.exclude(**{f"{column}__isnull": True}).exclude(**{f"{column}__exact": ''}).values_list(column, flat=True).distinct().order_by(column)
+                return JsonResponse({'values': list(values)})
+            return JsonResponse({'values': []})
+
+        # Apply column filters dynamically
+        active_filters = {}
+        for key, value in request.GET.items():
+            if key.startswith('filter_') and value:
+                col = key.replace('filter_', '')
+                entities = entities.filter(**{f"{col}__exact": value})
+                active_filters[key] = value
+
         # Search
         if query:
             if entity_type == 'agency':
@@ -110,11 +126,15 @@ def entity_list(request):
         except EmptyPage:
             entities_page = paginator.page(paginator.num_pages)
 
+        filter_qs = ''.join([f"&{k}={v}" for k, v in active_filters.items()])
+
         return render(request, 'entity_list.html', {
             'entities': entities_page,
             'query': query,
             'entity_type': entity_type,
             'sort': sort,
+            'active_filters': active_filters,
+            'filter_qs': filter_qs,
         })
     except Exception as e:
         return HttpResponse(f"<pre>{traceback.format_exc()}</pre>")
