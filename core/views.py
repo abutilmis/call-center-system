@@ -109,8 +109,9 @@ def upload_agencies(request):
         if form.is_valid():
             file = request.FILES['file']
             try:
-                df = pd.read_excel(file)
+                df = pd.read_excel(file).fillna('')
                 df.columns = [str(col).strip().title() for col in df.columns]
+
                 required_cols = ['Name', 'Phone1', 'Phone2', 'City', 'Woreda']
                 missing = [col for col in required_cols if col not in df.columns]
                 if missing:
