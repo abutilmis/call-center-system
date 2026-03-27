@@ -20,6 +20,7 @@
                     <tr>
                         <th class="ps-4">Request #</th>
                         <th>Type</th>
+                        <th>Client Name</th>
                         <th>Phone</th>
                         <th>Labor ID</th>
                         <th>Status</th>
@@ -36,6 +37,7 @@
                             <i class="fas {% if req.correction_type == 'name' %}fa-user text-primary{% elif req.correction_type == 'dob' %}fa-calendar text-info{% else %}fa-venus-mars text-warning{% endif %} me-2"></i>
                             {{ req.get_correction_type_display }}
                         </td>
+                        <td class="fw-bold text-dark">{{ req.client_name }}</td>
                         <td>{{ req.phone }}</td>
                         <td>{{ req.labor_id|default:"—" }}</td>
                         <td>

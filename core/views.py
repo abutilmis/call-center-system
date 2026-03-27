@@ -280,6 +280,7 @@ def client_correction_list(request):
 def client_correction_create(request):
     if request.method == 'POST':
         correction_type = request.POST.get('correction_type')
+        client_name = request.POST.get('client_name')
         phone = request.POST.get('phone')
         labor_id = request.POST.get('labor_id', '')
         old_data = request.POST.get('old_data', '{}')
@@ -292,9 +293,10 @@ def client_correction_create(request):
             old_data_dict = {}
             new_data_dict = {}
 
-        if correction_type and phone:
+        if correction_type and client_name and phone:
             ClientCorrection.objects.create(
                 correction_type=correction_type,
+                client_name=client_name,
                 phone=phone,
                 labor_id=labor_id,
                 old_data=old_data_dict,
@@ -331,6 +333,70 @@ def client_correction_detail(request, pk):
         messages.error(request, "You don't have permission to view this request.")
         return redirect('client_correction_list')
     return render(request, 'client_correction_detail.html', {'correction': correction})
+
+@login_required
+def client_correction_update(request, pk):
+    correction = get_object_or_404(ClientCorrection, pk=pk)
+    
+    if correction.status != 'pending':
+        messages.error(request, "Only pending requests can be edited.")
+        return redirect('client_correction_list')
+    if request.user.role != 'supervisor' and correction.agent != request.user:
+        messages.error(request, "You don't have permission to edit this request.")
+        return redirect('client_correction_list')
+
+    if request.method == 'POST':
+        correction_type = request.POST.get('correction_type')
+        client_name = request.POST.get('client_name')
+        phone = request.POST.get('phone')
+        labor_id = request.POST.get('labor_id', '')
+        old_data = request.POST.get('old_data', '{}')
+        new_data = request.POST.get('new_data', '{}')
+        
+        try:
+            old_data_dict = json.loads(old_data)
+            new_data_dict = json.loads(new_data)
+        except ValueError:
+            old_data_dict = {}
+            new_data_dict = {}
+
+        if correction_type and client_name and phone:
+            correction.correction_type = correction_type
+            correction.client_name = client_name
+            correction.phone = phone
+            correction.labor_id = labor_id
+            correction.old_data = old_data_dict
+            correction.new_data = new_data_dict
+            correction.save()
+            
+            messages.success(request, "Client correction request updated successfully.")
+            return redirect('client_correction_list')
+        else:
+            messages.error(request, "Please fill in all required fields.")
+            
+    context = {
+        'correction': correction,
+        'old_data_json': json.dumps(correction.old_data),
+        'new_data_json': json.dumps(correction.new_data),
+        'title': 'Edit Client Correction',
+        'is_edit': True
+    }
+    return render(request, 'client_correction_form.html', context)
+
+@login_required
+def client_correction_delete(request, pk):
+    correction = get_object_or_404(ClientCorrection, pk=pk)
+    
+    if request.user.role != 'supervisor' and correction.agent != request.user:
+        messages.error(request, "You don't have permission to delete this request.")
+        return redirect('client_correction_list')
+        
+    if request.method == 'POST':
+        correction.delete()
+        messages.success(request, "Correction request deleted.")
+        return redirect('client_correction_list')
+        
+    return render(request, 'client_correction_confirm_delete.html', {'correction': correction})
 
 # Knowledge Base
 @login_required
@@ -384,7 +450,21 @@ def announcement_create(request):
             return redirect('announcement_list')
     else:
         form = AnnouncementForm()
-    return render(request, 'announcement_form.html', {'form': form, 'title': 'Post Announcement'})
+    return render(request, 'announcement_form.html', {'form': form, 'title': 'Create Announcement'})
+
+@login_required
+def announcement_delete(request, pk):
+    announcement = get_object_or_404(Announcement, pk=pk)
+    if request.user.role != 'supervisor' and announcement.posted_by != request.user:
+        messages.error(request, "You don't have permission to delete this announcement.")
+        return redirect('announcement_list')
+        
+    if request.method == 'POST':
+        announcement.delete()
+        messages.success(request, "Announcement deleted.")
+        return redirect('announcement_list')
+        
+    return render(request, 'announcement_confirm_delete.html', {'announcement': announcement})
 
 # User Registration
 def register(request):

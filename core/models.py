@@ -72,6 +72,7 @@ class ClientCorrection(models.Model):
     )
     request_id = models.AutoField(primary_key=True)
     correction_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    client_name = models.CharField(max_length=200, default='')
     phone = models.CharField(max_length=200)
     labor_id = models.CharField(max_length=200, blank=True)
     old_data = models.JSONField(default=dict)

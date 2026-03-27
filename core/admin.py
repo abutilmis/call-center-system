@@ -12,9 +12,9 @@ class EntityAdmin(admin.ModelAdmin):
     list_filter = ('entity_type',)
 
 class ClientCorrectionAdmin(admin.ModelAdmin):
-    list_display = ('request_id', 'agent', 'correction_type', 'phone', 'status', 'created_at')
+    list_display = ('request_id', 'agent', 'correction_type', 'client_name', 'phone', 'status', 'created_at')
     list_filter = ('correction_type', 'status')
-    search_fields = ('agent__username', 'phone')
+    search_fields = ('agent__username', 'client_name', 'phone')
     raw_id_fields = ('agent',)
 
 class KnowledgeBaseAdmin(admin.ModelAdmin):
