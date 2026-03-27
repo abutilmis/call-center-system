@@ -6,6 +6,8 @@ from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 from .models import Entity, CorrectionRequest, KnowledgeBase, Announcement
 from .forms import EntityForm, CorrectionRequestForm, KnowledgeBaseForm, AnnouncementForm, AgentRegistrationForm
+from django.db import connection
+from django.http import HttpResponse
 
 User = get_user_model()
 
@@ -330,13 +332,37 @@ def create_supervisor(request):
     user.role = role
     user.save()
     return HttpResponse(f"Supervisor created!<br>Username: {username}<br>Password: {password}<br>Please log in and change your password.")
+def increase_lengths(request):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("ALTER TABLE core_entity ALTER COLUMN name TYPE varchar(200);")
+            cursor.execute("ALTER TABLE core_entity ALTER COLUMN phone TYPE varchar(200);")
+            cursor.execute("ALTER TABLE core_entity ALTER COLUMN phone2 TYPE varchar(200);")
+            cursor.execute("ALTER TABLE core_entity ALTER COLUMN city TYPE varchar(200);")
+            cursor.execute("ALTER TABLE core_entity ALTER COLUMN woreda TYPE varchar(200);")
+        return HttpResponse("✅ All text fields increased to 200 characters.")
+    except Exception as e:
+        return HttpResponse(f"❌ Error: {e}")    
+def debug_entity_list(request):
+    from core.models import Entity
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    import traceback
+    try:
+        entities = Entity.objects.all().order_by('entity_id')   # changed from 'id'
+        paginator = Paginator(entities, 20)
+        page = request.GET.get('page', 1)
+        entities_page = paginator.page(page)
+        return HttpResponse(f"Page {page}: {len(entities_page)} entities")
+    except Exception as e:
+        return HttpResponse(f"Error: {e}<br><pre>{traceback.format_exc()}</pre>")
+
 def test_paginated(request):
     import traceback
     try:
         from core.models import Entity
         from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-        entities = Entity.objects.filter(entity_type='agency').order_by('id')
+        entities = Entity.objects.filter(entity_type='agency').order_by('entity_id')   # changed from 'id'
         paginator = Paginator(entities, 20)
         page = request.GET.get('page', 1)
         try:
@@ -350,4 +376,4 @@ def test_paginated(request):
         html += "</ul>"
         return HttpResponse(html)
     except Exception as e:
-        return HttpResponse(f"<pre>{traceback.format_exc()}</pre>")
+        return HttpResponse(f"<pre>{traceback.format_exc()}</pre>")    
