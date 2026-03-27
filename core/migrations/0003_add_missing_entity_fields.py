@@ -3,7 +3,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0002_previous_migration_name'),  # replace with the actual latest migration file name
+        ('core', '0002_entity_city_entity_phone2_entity_woreda_and_more'),  # replace with the actual latest migration file name
     ]
 
     operations = [
