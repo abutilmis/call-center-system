@@ -489,3 +489,28 @@ def test_paginated(request):
         return HttpResponse(html)
     except Exception as e:
         return HttpResponse(f"<pre>{traceback.format_exc()}</pre>")    
+def debug_entity_list(request):
+    import traceback
+    from django.http import HttpResponse
+    from django.core.paginator import Paginator
+    try:
+        entity_type = request.GET.get('type', 'agency')
+        query = request.GET.get('q', '')
+        sort = request.GET.get('sort', 'date_desc')
+
+        entities = Entity.objects.filter(entity_type=entity_type)
+        # Simplify: no search/sort for debug
+        paginator = Paginator(entities, 20)
+        page = request.GET.get('page', 1)
+        try:
+            page_obj = paginator.page(page)
+        except:
+            page_obj = paginator.page(1)
+
+        html = f"<h1>Debug: {entity_type} (Page {page_obj.number})</h1><ul>"
+        for e in page_obj:
+            html += f"<li>{e.name} - {e.phone}</li>"
+        html += "</ul>"
+        return HttpResponse(html)
+    except Exception as e:
+        return HttpResponse(f"<pre>{traceback.format_exc()}</pre>")        
