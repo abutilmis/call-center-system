@@ -18,5 +18,5 @@ urlpatterns = [
     path('create-supervisor/', views.create_supervisor, name='create_supervisor'),
     path('upload-agencies/', views.upload_agencies, name='upload_agencies'),
     path('entities/delete-all/', views.delete_all_entities, name='delete_all_entities'),
-    path('debug-entities/', views.debug_entities, name='debug_entities'),
+    path('debug-entities-db/', views.debug_entities_db, name='debug_entities_db'),
 ]       
