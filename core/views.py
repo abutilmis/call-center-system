@@ -105,9 +105,10 @@ def entity_list(request):
         page = request.GET.get('page')
         try:
             entities_page = paginator.page(page)
-        except (PageNotAnInteger, EmptyPage):
-            # If page is not an integer or out of range (including <1), deliver first page.
+        except PageNotAnInteger:
             entities_page = paginator.page(1)
+        except EmptyPage:
+            entities_page = paginator.page(paginator.num_pages)
 
         return render(request, 'entity_list.html', {
             'entities': entities_page,
