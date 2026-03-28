@@ -71,7 +71,7 @@
             { id: 'grandfather_name', label: 'Grandfather Name' }
         ],
         'dob': [
-            { id: 'dob', label: 'Date of Birth (YYYY-MM-DD)' }
+            { id: 'dob', label: 'Date of Birth', type: 'date' }
         ],
         'sex': [
             { id: 'sex', label: 'Sex (M/F)' },
@@ -115,16 +115,17 @@
         newCol.innerHTML = '<h5 class="fw-bold text-success mb-4"><i class="fas fa-check-circle me-2"></i>Corrected Data (New)</h5>';
 
         fields.forEach(f => {
+            const inputType = f.type || 'text';
             oldCol.innerHTML += `
                 <div class="mb-3">
                     <label class="form-label">${f.label}</label>
-                    <input type="text" class="form-control rounded-pill px-3 old-input" data-key="${f.id}" placeholder="Current ${f.label.toLowerCase()}">
+                    <input type="${inputType}" class="form-control rounded-pill px-3 old-input" data-key="${f.id}" placeholder="Current ${f.label.toLowerCase()}">
                 </div>
             `;
             newCol.innerHTML += `
                 <div class="mb-3">
                     <label class="form-label">${f.label}</label>
-                    <input type="text" class="form-control rounded-pill px-3 new-input" data-key="${f.id}" placeholder="New ${f.label.toLowerCase()}">
+                    <input type="${inputType}" class="form-control rounded-pill px-3 new-input" data-key="${f.id}" placeholder="New ${f.label.toLowerCase()}">
                 </div>
             `;
         });

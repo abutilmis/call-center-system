@@ -118,3 +118,22 @@ class Announcement(models.Model):
 
     def get_absolute_url(self):
         return reverse('announcement_detail', args=[self.announcement_id])
+
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+from django.db import connection
+
+@receiver(post_delete, sender=ClientCorrection)
+def reset_client_correction_sequence(sender, **kwargs):
+    """
+    Attempt to reset the auto-increment sequence upon deletion 
+    so the next created record reuses the final deleted ID sequence.
+    """
+    try:
+        with connection.cursor() as cursor:
+            if connection.vendor == 'postgresql':
+                cursor.execute("SELECT setval(pg_get_serial_sequence('core_clientcorrection', 'request_id'), coalesce(max(request_id), 1), max(request_id) IS NOT null) FROM core_clientcorrection;")
+            elif connection.vendor == 'sqlite':
+                cursor.execute("UPDATE sqlite_sequence SET seq = (SELECT MAX(request_id) FROM core_clientcorrection) WHERE name='core_clientcorrection';")
+    except Exception as e:
+        print("Sequence reset failed:", e)
