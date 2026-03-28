@@ -402,6 +402,14 @@ def client_correction_detail(request, pk):
         ]
         summary = "\n".join([line for line in lines if line.strip()])
 
+    elif correction.correction_type == 'too_many_attempt':
+        lines = [
+            correction.phone,
+            correction.client_name,
+            "Too many Attempts"
+        ]
+        summary = "\n".join([line for line in lines if line.strip()])
+
     return render(request, 'client_correction_detail.html', {'correction': correction, 'telegram_summary': summary})
 
 @login_required

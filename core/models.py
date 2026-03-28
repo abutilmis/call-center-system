@@ -67,6 +67,7 @@ class ClientCorrection(models.Model):
         ('name', 'Name'),
         ('dob', 'Date of Birth'),
         ('sex', 'Sex'),
+        ('too_many_attempt', 'Too Many Attempt'),
     )
     STATUS_CHOICES = (
         ('pending', 'Pending'),
