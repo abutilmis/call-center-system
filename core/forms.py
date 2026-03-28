@@ -14,8 +14,8 @@ class EntityForm(forms.ModelForm):
     class Meta:
         model = Entity
         fields = [
-            'entity_type', 'name', 'phone', 'phone2', 'city', 'woreda', 'region',
-            'location', 'registration_id', 'additional_info'
+            'entity_type', 'name', 'phone', 'phone2', 'phone3', 'city', 'woreda', 'region',
+            'location', 'registration_id', 'tvet_type', 'labor_id', 'additional_info'
         ]
         widgets = {
             'additional_info': forms.Textarea(attrs={'rows': 3, 'class': 'form-control rounded-4 px-4'}),
@@ -75,3 +75,9 @@ class OSSCUploadForm(forms.Form):
         label='Excel file',
         help_text='Upload an Excel (.xlsx) file with columns: Region, Zone/City, Woreda/Sub-City, OSSC Name'
     )    
+
+class TVETUploadForm(forms.Form):
+    file = forms.FileField(
+        label='Excel file',
+        help_text='Upload an Excel (.xlsx) file with columns: Institution Name, Region, Zone/ Town/ Sub city, Woreda, Type, labor id, phone no, phone no2, phone no3, Position'
+    )

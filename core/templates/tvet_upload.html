@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard-wrapper">
+    <div class="d-flex align-items-center mb-4 p-4 bg-white rounded-4 shadow-sm">
+        <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3 text-primary">
+            <i class="fas fa-building"></i>
+        </div>
+        <div>
+            <h2 class="fw-bold mb-0">Upload TVET Data</h2>
+            <p class="text-muted mb-0">Import multiple TVET records from an Excel spreadsheet.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="activity-card p-4">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Select Excel File</label>
+                        {{ form.file }}
+                        <div class="form-text mt-2"><i class="fas fa-info-circle me-1"></i>Ensure your file is in .xlsx format.</div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4 rounded-pill fw-bold">
+                            <i class="fas fa-upload me-2"></i>Start Upload
+                        </button>
+                        <a href="{% url 'entity_list' %}?type=tvet" class="btn btn-light px-4 rounded-pill">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="activity-card bg-light border-0 p-4">
+                <h5 class="fw-bold mb-3"><i class="fas fa-file-excel text-success me-2"></i>File Requirements</h5>
+                <p class="text-muted small mb-3">Your Excel file must contain the following exact column headers in the first row:</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-white text-dark border px-3 py-2 shadow-sm">Institution Name</span>
+                    <span class="badge bg-white text-dark border px-3 py-2 shadow-sm">Region</span>
+                    <span class="badge bg-white text-dark border px-3 py-2 shadow-sm">Zone/ Town/ Sub city</span>
+                    <span class="badge bg-white text-dark border px-3 py-2 shadow-sm">Woreda</span>
+                    <span class="badge bg-white text-dark border px-3 py-2 shadow-sm">Type</span>
+                    <span class="badge bg-white text-dark border px-3 py-2 shadow-sm">labor id</span>
+                    <span class="badge bg-white text-dark border px-3 py-2 shadow-sm">phone no</span>
+                    <span class="badge bg-white text-dark border px-3 py-2 shadow-sm">phone no2</span>
+                    <span class="badge bg-white text-dark border px-3 py-2 shadow-sm">phone no3</span>
+                    <span class="badge bg-white text-dark border px-3 py-2 shadow-sm">Position</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

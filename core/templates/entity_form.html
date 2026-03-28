@@ -116,6 +116,58 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- TVET Specific Fields -->
+            <div id="tvetFields" style="display: none;">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">Region</label>
+                            {{ form.region }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">Zone/City</label>
+                            {{ form.city }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">Woreda</label>
+                            {{ form.woreda }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">Secondary Phone</label>
+                            {{ form.phone2 }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">Tertiary Phone</label>
+                            {{ form.phone3 }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">TVET Type</label>
+                            {{ form.tvet_type }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold text-muted small ps-2">Labor ID</label>
+                            {{ form.labor_id }}
+                        </div>
+                    </div>
+                </div>
+            </div>
             <hr class="my-4 opacity-25">
 
             <!-- Additional info -->
@@ -150,22 +202,27 @@
 
         function toggleFields() {
             const selected = entityTypeSelect.value;
+            const tvetFields = document.getElementById('tvetFields');
             if (selected === 'agency') {
                 agencyDiv.style.display = 'block';
                 tvetOsscDiv.style.display = 'none';
                 osscDiv.style.display = 'none';
+                if(tvetFields) tvetFields.style.display = 'none';
             } else if (selected === 'tvet') {
                 agencyDiv.style.display = 'none';
-                tvetOsscDiv.style.display = 'block';
+                tvetOsscDiv.style.display = 'none';
                 osscDiv.style.display = 'none';
+                if(tvetFields) tvetFields.style.display = 'block';
             } else if (selected === 'ossc') {
                 agencyDiv.style.display = 'none';
                 tvetOsscDiv.style.display = 'none';
                 osscDiv.style.display = 'block';
+                if(tvetFields) tvetFields.style.display = 'none';
             } else {
                 agencyDiv.style.display = 'none';
                 tvetOsscDiv.style.display = 'none';
                 osscDiv.style.display = 'none';
+                if(tvetFields) tvetFields.style.display = 'none';
             }
         }
 

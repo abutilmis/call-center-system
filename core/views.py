@@ -82,7 +82,9 @@ def entity_list(request):
                 )
             elif entity_type == 'tvet':
                 entities = entities.filter(
-                    Q(name__icontains=query) | Q(registration_id__icontains=query) | Q(location__icontains=query)
+                    Q(name__icontains=query) | Q(region__icontains=query) | Q(city__icontains=query) | 
+                    Q(woreda__icontains=query) | Q(tvet_type__icontains=query) | Q(labor_id__icontains=query) | 
+                    Q(phone__icontains=query) | Q(phone2__icontains=query) | Q(phone3__icontains=query)
                 )
             else:
                 entities = entities.filter(name__icontains=query)
@@ -110,6 +112,20 @@ def entity_list(request):
                         'phone2': '',
                         'city': r.get('city', ''),
                         'woreda': r.get('woreda', ''),
+                    })
+                return JsonResponse({'results': results_list})
+            elif entity_type == 'tvet':
+                results = entities.values('entity_id', 'name', 'phone', 'labor_id', 'city')[:20]
+                results_list = []
+                for r in results:
+                    phone_label = str(r.get('phone') or '')
+                    labor_label = str(r.get('labor_id') or '')
+                    meta_label = f"{labor_label} {phone_label}".strip()
+                    results_list.append({
+                        'entity_id': r['entity_id'],
+                        'name': r['name'],
+                        'phone': meta_label if meta_label else 'N/A',
+                        'city': r.get('city', ''),
                     })
                 return JsonResponse({'results': results_list})
             else:
@@ -575,9 +591,12 @@ def increase_lengths(request):
         return HttpResponse("✅ All text fields increased to 200 characters.")
     except Exception as e:
         return HttpResponse(f"❌ Error: {e}")
-from .forms import OSSCUploadForm
+from .forms import OSSCUploadForm, TVETUploadForm
+import pandas as pd
+import logging
+import re
 
-@login_required
+logger = logging.getLogger(__name__)
 @supervisor_required
 def upload_ossc(request):
     if request.method == 'POST':
@@ -667,7 +686,82 @@ def upload_ossc(request):
             return redirect('entity_list')
     else:
         form = OSSCUploadForm()
-    return render(request, 'ossc_upload.html', {'form': form})         
+    return render(request, 'ossc_upload.html', {'form': form})
+
+@login_required
+@supervisor_required
+def upload_tvet(request):
+    if request.method == 'POST':
+        form = TVETUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = request.FILES['file']
+            try:
+                df = pd.read_excel(file, engine='openpyxl', dtype=str)
+                # Normalize column names cleanly
+                df.columns = [
+                    re.sub(r'[\s\/\-]+', '_', str(col).strip().lower())
+                    for col in df.columns
+                ]
+
+                entities_to_create = []
+                created = 0
+                errors = 0
+
+                for idx, row in df.iterrows():
+                    try:
+                        name = str(row.get('institution_name', '')) if pd.notna(row.get('institution_name')) else ''
+                        region = str(row.get('region', '')) if pd.notna(row.get('region')) else ''
+                        city = str(row.get('zone_town_sub_city', '')) if pd.notna(row.get('zone_town_sub_city')) else ''
+                        woreda = str(row.get('woreda', '')) if pd.notna(row.get('woreda')) else ''
+                        tvet_type = str(row.get('type', '')) if pd.notna(row.get('type')) else ''
+                        labor_id = str(row.get('labor_id', '')) if pd.notna(row.get('labor_id')) else ''
+                        phone = str(row.get('phone_no', '')) if pd.notna(row.get('phone_no')) else ''
+                        phone2 = str(row.get('phone_no2', '')) if pd.notna(row.get('phone_no2')) else ''
+                        phone3 = str(row.get('phone_no3', '')) if pd.notna(row.get('phone_no3')) else ''
+                        position = str(row.get('position', '')) if pd.notna(row.get('position')) else ''
+                        
+                        if not name:
+                            errors += 1
+                            continue
+
+                        additional_info = {}
+                        if position:
+                            additional_info['position'] = position
+
+                        entities_to_create.append(
+                            Entity(
+                                entity_type='tvet',
+                                name=name,
+                                region=region,
+                                city=city,
+                                woreda=woreda,
+                                tvet_type=tvet_type,
+                                labor_id=labor_id,
+                                phone=phone,
+                                phone2=phone2,
+                                phone3=phone3,
+                                additional_info=additional_info
+                            )
+                        )
+                        created += 1
+                    except Exception as e:
+                        errors += 1
+                        logger.warning(f"Row {idx+2} failed: {e}")
+
+                if entities_to_create:
+                    Entity.objects.bulk_create(entities_to_create)
+
+                if errors:
+                    messages.warning(request, f'{created} TVET entries imported. {errors} rows skipped.')
+                else:
+                    messages.success(request, f'{created} TVET entries imported successfully.')
+            except Exception as e:
+                messages.error(request, f'Error processing file: {str(e)}')
+            return redirect('entity_list')
+    else:
+        form = TVETUploadForm()
+    return render(request, 'tvet_upload.html', {'form': form})
+
 def debug_entities_db(request):
     from core.models import Entity
     from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger

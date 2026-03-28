@@ -21,11 +21,13 @@ urlpatterns = [
     path('announcements/<int:pk>/delete/', views.announcement_delete, name='announcement_delete'),
     path('register/', views.register, name='register'),
     path('create-supervisor/', views.create_supervisor, name='create_supervisor'),
-    path('upload-agencies/', views.upload_agencies, name='upload_agencies'),
+    path('entities/upload-agencies/', views.upload_agencies, name='upload_agencies'),
+    path('entities/upload-ossc/', views.upload_ossc, name='upload_ossc'),
+    path('entities/upload-tvet/', views.upload_tvet, name='upload_tvet'),
     path('entities/delete-all/', views.delete_all_entities, name='delete_all_entities'),
     path('debug-entities-db/', views.debug_entities_db, name='debug_entities_db'),
     path('test-paginated/', views.test_paginated, name='test_paginated'),
     path('increase-lengths/', views.increase_lengths, name='increase_lengths'),
     path('upload-ossc/', views.upload_ossc, name='upload_ossc'),
     path('debug-entities/', views.debug_entity_list, name='debug_entities'),    
-]       
+]

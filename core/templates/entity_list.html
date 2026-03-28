@@ -21,8 +21,8 @@
                 <i class="fas fa-upload me-2"></i>Upload OSSC File
             </a>
             {% elif entity_type == 'tvet' %}
-            <a href="#" class="btn btn-outline-primary px-4 rounded-pill disabled">
-                <i class="fas fa-upload me-2"></i>Upload TVET (soon)
+            <a href="{% url 'upload_tvet' %}" class="btn btn-outline-primary px-4 rounded-pill">
+                <i class="fas fa-upload me-2"></i>Upload TVET File
             </a>
             {% endif %}
             <button type="button" class="btn btn-outline-danger px-4 rounded-pill" data-bs-toggle="modal"
@@ -67,20 +67,19 @@
             </select>
         </div>
 
-        <!-- Search -->
-        <div class="col-lg-4 col-md-8">
+        <div class="col-lg-4 col-md-8 position-relative">
             <label class="form-label small fw-bold text-muted ps-2">Quick Search</label>
             <div class="input-group shadow-sm rounded-pill overflow-hidden position-relative">
                 <span class="input-group-text bg-white border-0"><i class="fas fa-search text-primary"></i></span>
                 <input type="text" id="searchInput" class="form-control border-0" placeholder="Type to search..."
-                    autocomplete="off" value="{{ query }}" style="padding-right: 35px;">
+                    autocomplete="off" value="{{ query }}" style="padding-right: 35px; position: relative; z-index: 1;">
                 <span id="clearSearchBtn" class="position-absolute end-0 top-50 translate-middle-y me-5 text-muted"
                     style="z-index: 5; cursor: pointer; display: none;" title="Clear Search"><i
                         class="fas fa-times"></i></span>
                 <button class="btn btn-primary px-4" id="searchBtn" style="z-index: 6;">Search</button>
             </div>
             <div id="autocomplete-results" class="list-group shadow position-absolute w-100 z-3"
-                style="display: none; top: 100%;"></div>
+                style="display: none; top: calc(100% + 5px); left: 0; right: 0; z-index: 1000; border-radius: 1rem;"></div>
         </div>
     </div>
 
@@ -133,10 +132,15 @@
                         <th>Zone/City</th>
                         <th>Woreda/Sub-City</th>
                         {% else %}
-                        <th class="ps-4">Name</th>
-                        <th>Registration ID</th>
-                        <th>Location</th>
-                        <th>Phone</th>
+                        <th class="ps-4">Institution Name</th>
+                        <th>Region</th>
+                        <th>Zone/City</th>
+                        <th>Woreda</th>
+                        <th>Type</th>
+                        <th>Labor ID</th>
+                        <th>Phone 1</th>
+                        <th>Phone 2</th>
+                        <th>Phone 3</th>
                         {% endif %}
                         <th class="text-end pe-4">Actions</th>
                     </tr>
@@ -169,9 +173,14 @@
                             <span class="fw-bold d-block">{{ entity.name }}</span>
                             <small class="text-muted">ID: #{{ entity.entity_id }}</small>
                         </td>
-                        <td>{{ entity.registration_id|default:"—" }}</td>
-                        <td>{{ entity.location|default:"—" }}</td>
+                        <td>{{ entity.region|default:"—" }}</td>
+                        <td>{{ entity.city|default:"—" }}</td>
+                        <td>{{ entity.woreda|default:"—" }}</td>
+                        <td><span class="badge bg-light text-dark">{{ entity.tvet_type|default:"—" }}</span></td>
+                        <td><small class="badge bg-secondary rounded-pill">{{ entity.labor_id|default:"—" }}</small></td>
                         <td>{{ entity.phone|default:"—" }}</td>
+                        <td><small class="text-muted">{{ entity.phone2|default:"—" }}</small></td>
+                        <td><small class="text-muted">{{ entity.phone3|default:"—" }}</small></td>
                         {% endif %}
                         <td class="text-end pe-4">
                             <div class="btn-group">

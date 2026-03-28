@@ -43,11 +43,14 @@ class Entity(models.Model):
     name = models.CharField(max_length=200)
     phone = models.CharField(max_length=200)
     phone2 = models.CharField(max_length=200, blank=True, null=True)          # new for agency
+    phone3 = models.CharField(max_length=200, blank=True, null=True)          # new for tvet
     city = models.CharField(max_length=200, blank=True, null=True)           # new for agency
     woreda = models.CharField(max_length=200, blank=True, null=True)
     region = models.CharField(max_length=200, blank=True, null=True)         # new for agency
     location = models.CharField(max_length=200, blank=True)
     registration_id = models.CharField(max_length=200, blank=True)
+    tvet_type = models.CharField(max_length=100, blank=True, null=True)
+    labor_id = models.CharField(max_length=200, blank=True, null=True)
     additional_info = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
