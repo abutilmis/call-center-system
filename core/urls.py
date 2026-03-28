@@ -9,6 +9,7 @@ urlpatterns = [
     path('entities/<int:pk>/delete/', views.entity_delete, name='entity_delete'),
     path('client-correction/new/', views.client_correction_create, name='client_correction_create'),
     path('client-correction/list/', views.client_correction_list, name='client_correction_list'),
+    path('client-correction/check-duplicate/', views.check_duplicate_request, name='check_duplicate_correction'),
     path('client-correction/<int:pk>/approve/', views.client_correction_approve, name='client_correction_approve'),
     path('client-correction/<int:pk>/detail/', views.client_correction_detail, name='client_correction_detail'),
     path('client-correction/<int:pk>/edit/', views.client_correction_update, name='client_correction_update'),

@@ -22,6 +22,11 @@
                 <div class="col-md-4">
                     <label class="form-label fw-bold">Client Phone *</label>
                     <input type="text" name="phone" id="clientPhone" class="form-control rounded-pill px-4" value="{{ correction.phone|default:'' }}" required>
+                    <div id="duplicateWarning" class="alert alert-warning mt-2 d-none py-2 px-3 small rounded-3 border-0 shadow-sm" style="font-size: 0.8rem;">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        There's a pending request for this number.
+                        <a href="#" id="duplicateLink" class="alert-link ms-1 fw-bold text-decoration-underline" target="_blank">View</a>
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label fw-bold">Labor ID</label>
@@ -69,7 +74,8 @@
             { id: 'dob', label: 'Date of Birth (YYYY-MM-DD)' }
         ],
         'sex': [
-            { id: 'sex', label: 'Sex (M/F)' }
+            { id: 'sex', label: 'Sex (M/F)' },
+            { id: 'comment', label: 'Comment (e.g., Fixing Mistaken EM/EF Prefix)' }
         ]
     };
 
@@ -184,5 +190,36 @@
             });
         }, 50);
     }
+
+    // Duplicate Checking Logic with Debounce
+    const clientPhoneInput = document.getElementById('clientPhone');
+    const duplicateWarning = document.getElementById('duplicateWarning');
+    const duplicateLink = document.getElementById('duplicateLink');
+    let phoneTimeout = null;
+
+    clientPhoneInput.addEventListener('input', function() {
+        const phone = this.value.trim();
+        clearTimeout(phoneTimeout);
+        
+        if (!phone) {
+            duplicateWarning.classList.add('d-none');
+            return;
+        }
+
+        phoneTimeout = setTimeout(() => {
+            fetch(`{% url 'check_duplicate_correction' %}?phone=${encodeURIComponent(phone)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        duplicateWarning.classList.remove('d-none');
+                        duplicateLink.href = `/client-correction/${data.request_id}/detail/`;
+                        duplicateLink.textContent = `View Request (${data.correction_type})`;
+                    } else {
+                        duplicateWarning.classList.add('d-none');
+                    }
+                })
+                .catch(err => console.error("Duplicate check error:", err));
+        }, 500);
+    });
 </script>
 {% endblock %}
