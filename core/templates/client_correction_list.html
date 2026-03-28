@@ -1,20 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="dashboard-wrapper">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 p-4 bg-white rounded-4 shadow-sm">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 p-4 glass-panel rounded-4 shadow-sm border-0 page-fade-in">
         <div>
             <h2 class="fw-bold mb-1">Client Corrections</h2>
-            <p class="text-muted mb-0">Manage and track client data correction requests.</p>
+            <p class="text-muted mb-0">Manage and track data correction requests.</p>
         </div>
         <div class="mt-3 mt-md-0 d-flex flex-wrap align-items-center gap-3">
-            <form method="GET" action="{% url 'client_correction_list' %}" class="d-flex position-relative">
-                <input type="text" name="q" value="{{ query }}" class="form-control rounded-pill pe-5 shadow-sm" placeholder="Search phone or labor ID..." style="width: 250px;">
-                <button type="submit" class="btn position-absolute end-0 top-0 bottom-0 text-muted shadow-none border-0" style="border-radius: 0 50rem 50rem 0;">
-                    <i class="fas fa-search"></i>
-                </button>
+            <form method="GET" action="{% url 'client_correction_list' %}" class="search-container" style="width: 280px;">
+                <div class="search-input-group border-primary border-opacity-25">
+                    <i class="ri-search-line text-muted me-2"></i>
+                    <input type="text" name="q" value="{{ query }}" placeholder="Search ID or phone..." style="font-size: 0.9rem;">
+                    <button type="submit" class="btn-search py-1 px-3">Go</button>
+                </div>
             </form>
-            <a href="{% url 'client_correction_create' %}" class="btn btn-primary px-4 rounded-pill shadow-sm">
-                <i class="fas fa-plus me-2"></i>New Request
+            <a href="{% url 'client_correction_create' %}" class="btn btn-primary px-4 rounded-pill shadow-sm hover-scale">
+                <i class="ri-add-circle-line me-2"></i>New Request
             </a>
         </div>
     </div>
@@ -37,10 +38,10 @@
                 </thead>
                 <tbody>
                     {% for req in corrections %}
-                    <tr class="align-middle">
+                    <tr class="align-middle hover-scale">
                         <td class="ps-4 fw-bold text-primary">REQ-{{ req.request_id|stringformat:"04d" }}</td>
                         <td>
-                            <i class="fas {% if req.correction_type == 'name' %}fa-user text-primary{% elif req.correction_type == 'dob' %}fa-calendar text-info{% else %}fa-venus-mars text-warning{% endif %} me-2"></i>
+                            <i class="{% if req.correction_type == 'name' %}ri-user-settings-line text-primary{% elif req.correction_type == 'dob' %}ri-calendar-event-line text-info{% else %}ri-genderless-line text-warning{% endif %} me-2"></i>
                             {{ req.get_correction_type_display }}
                         </td>
                         <td class="fw-bold text-dark">{{ req.client_name }}</td>
@@ -48,27 +49,25 @@
                         <td>{{ req.labor_id|default:"—" }}</td>
                         <td>
                             {% if req.status == 'pending' %}
-                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2">Pending</span>
+                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2"><i class="ri-time-line me-1"></i>Pending</span>
                             {% elif req.status == 'approved' %}
-                            <span class="badge bg-success rounded-pill px-3 py-2">Approved</span>
+                            <span class="badge bg-success rounded-pill px-3 py-2"><i class="ri-checkbox-circle-line me-1"></i>Approved</span>
                             {% else %}
-                            <span class="badge bg-danger rounded-pill px-3 py-2">Rejected</span>
+                            <span class="badge bg-danger rounded-pill px-3 py-2"><i class="ri-close-circle-line me-1"></i>Rejected</span>
                             {% endif %}
                         </td>
                         <td>{{ req.agent.username }}</td>
                         <td class="text-muted small">{{ req.created_at|date:"M d, Y" }}</td>
                         <td class="text-end pe-4">
                             <div class="d-flex justify-content-end gap-2">
-                                {% if user.role == 'supervisor' and req.status == 'pending' %}
-                                <a href="{% url 'client_correction_approve' req.pk %}" class="btn btn-sm btn-primary rounded-pill px-3" title="Review">Review</a>
-                                {% endif %}
-                                
-                                <a href="{% url 'client_correction_detail' req.pk %}" class="btn btn-sm btn-light rounded-pill px-3" title="View">View</a>
+                                <a href="{% url 'client_correction_detail' req.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 " title="View">
+                                    <i class="ri-eye-line me-1"></i> View
+                                </a>
                                 
                                 {% if req.status == 'pending' %}
                                     {% if request.user.id == req.agent.id or request.user.role == 'supervisor' %}
-                                    <a href="{% url 'client_correction_update' req.pk %}" class="btn btn-sm btn-outline-warning rounded-circle px-2" title="Edit"><i class="fas fa-edit"></i></a>
-                                    <a href="{% url 'client_correction_delete' req.pk %}" class="btn btn-sm btn-outline-danger rounded-circle px-2" title="Delete"><i class="fas fa-trash"></i></a>
+                                    <a href="{% url 'client_correction_update' req.pk %}" class="btn btn-sm btn-outline-warning rounded-pill px-3" title="Edit"><i class="ri-edit-line"></i></a>
+                                    <a href="{% url 'client_correction_delete' req.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Delete"><i class="ri-delete-bin-line"></i></a>
                                     {% endif %}
                                 {% endif %}
                             </div>

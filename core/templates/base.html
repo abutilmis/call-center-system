@@ -6,12 +6,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Call Center Management System</title>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome 6 -->
+    <!-- Font Awesome 6 & Remix Icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/ccms.css' %}">
+    <style>
+        /* Tooltip customization */
+        .tooltip-inner {
+            background-color: var(--primary);
+            color: #fff;
+            font-weight: 500;
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+        .bs-tooltip-auto[data-popper-placement^=top] .tooltip-arrow::before, 
+        .bs-tooltip-top .tooltip-arrow::before {
+            border-top-color: var(--primary);
+        }
+    </style>
 </head>
 <body>
 
@@ -27,23 +46,23 @@
         </div>
 
         <div class="sidebar-nav">
-            <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" title="Dashboard">
-                <i class="fas fa-chart-line"></i>
+            <a href="{% url 'dashboard' %}" class="nav-item hover-scale {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="right" title="Dashboard">
+                <i class="ri-dashboard-line"></i>
                 <span class="nav-text">Dashboard</span>
             </a>
-            <a href="{% url 'entity_list' %}" class="nav-item {% if 'entity' in request.resolver_match.url_name %}active{% endif %}" title="Entities">
-                <i class="fas fa-building"></i>
+            <a href="{% url 'entity_list' %}" class="nav-item hover-scale {% if 'entity' in request.resolver_match.url_name %}active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="right" title="Entities">
+                <i class="ri-building-line"></i>
                 <span class="nav-text">Entities</span>
             </a>
-            <a href="{% url 'client_correction_create' %}" class="nav-item {% if request.resolver_match.url_name == 'client_correction_create' %}active{% endif %}" title="New Correction">
-                <i class="fas fa-plus-circle"></i>
+            <a href="{% url 'client_correction_create' %}" class="nav-item hover-scale {% if request.resolver_match.url_name == 'client_correction_create' %}active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="right" title="New Correction">
+                <i class="ri-add-circle-line"></i>
                 <span class="nav-text">New Correction</span>
             </a>
-            <a href="{% url 'client_correction_list' %}" class="nav-item {% if 'client_correction' in request.resolver_match.url_name and request.resolver_match.url_name != 'client_correction_create' %}active{% endif %}" title="Correction Requests">
-                <i class="fas fa-edit"></i>
+            <a href="{% url 'client_correction_list' %}" class="nav-item hover-scale {% if 'client_correction' in request.resolver_match.url_name and request.resolver_match.url_name != 'client_correction_create' %}active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="right" title="Correction Requests">
+                <i class="ri-edit-line"></i>
                 <span class="nav-text w-100">
                     <span class="d-flex align-items-center justify-content-between">
-                        <span>Correction Requests</span>
+                        <span>Corrections</span>
                         {% get_pending_corrections_count as pending_count %}
                         {% if pending_count > 0 %}
                         <span class="badge bg-white text-primary rounded-pill ms-2" style="font-size: 0.7rem;">{{ pending_count }}</span>
@@ -51,18 +70,18 @@
                     </span>
                 </span>
             </a>
-            <a href="{% url 'knowledge_list' %}" class="nav-item {% if 'knowledge' in request.resolver_match.url_name %}active{% endif %}" title="Knowledge Base">
-                <i class="fas fa-database"></i>
-                <span class="nav-text">Knowledge Base</span>
+            <a href="{% url 'knowledge_list' %}" class="nav-item hover-scale {% if 'knowledge' in request.resolver_match.url_name %}active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="right" title="Knowledge Base">
+                <i class="ri-book-open-line"></i>
+                <span class="nav-text">Knowledge</span>
             </a>
-            <a href="{% url 'announcement_list' %}" class="nav-item {% if 'announcement' in request.resolver_match.url_name %}active{% endif %}" title="Announcements">
-                <i class="fas fa-bullhorn"></i>
+            <a href="{% url 'announcement_list' %}" class="nav-item hover-scale {% if 'announcement' in request.resolver_match.url_name %}active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="right" title="Announcements">
+                <i class="ri-notification-3-line"></i>
                 <span class="nav-text">Announcements</span>
             </a>
             {% if user.role == 'supervisor' %}
-            <a href="{% url 'announcement_create' %}" class="nav-item" title="Post Announcement">
-                <i class="fas fa-plus-circle"></i>
-                <span class="nav-text">Post Announcement</span>
+            <a href="{% url 'announcement_create' %}" class="nav-item hover-scale" data-bs-toggle="tooltip" data-bs-placement="right" title="Post Announcement">
+                <i class="ri-megaphone-line"></i>
+                <span class="nav-text">Post</span>
             </a>
             {% endif %}
         </div>
@@ -80,7 +99,7 @@
         <div class="content-header">
             <div class="d-flex align-items-center gap-3">
                 <button class="mobile-menu-btn d-lg-none" id="mobileMenuBtn" aria-label="Toggle Sidebar">
-                    <i class="fas fa-bars"></i>
+                    <i class="ri-menu-line"></i>
                 </button>
                 <div class="logo-container">
                     <img src="{% static 'images/logo.png' %}" alt="Logo" class="header-logo-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/100x30?text=CCMS'">
@@ -91,25 +110,28 @@
                 <div class="theme-switch">
                     <input type="checkbox" id="themeSwitchInput" class="theme-switch-input">
                     <label for="themeSwitchInput" class="theme-switch-label">
-                        <i class="fas fa-sun theme-switch-icon theme-switch-icon--sun"></i>
-                        <i class="fas fa-moon theme-switch-icon theme-switch-icon--moon"></i>
+                        <i class="ri-sun-line theme-switch-icon theme-switch-icon--sun"></i>
+                        <i class="ri-moon-line theme-switch-icon theme-switch-icon--moon"></i>
                     </label>
                 </div>
                 <div class="header-action-btn header-action-profile">
-                    <span class="header-avatar"><i class="fas fa-user-circle"></i></span>
+                    <span class="header-avatar"><i class="ri-user-3-line"></i></span>
                     <span class="header-username">{{ user.username }}</span>
                 </div>
                 <form method="post" action="{% url 'logout' %}" style="display: inline;">
                     {% csrf_token %}
                     <button type="submit" class="header-action-btn header-action-logout" title="Logout">
-                        <i class="fas fa-sign-out-alt"></i>
+                        <i class="ri-logout-box-r-line"></i>
                     </button>
                 </form>
             </div>
         </div>
+        
+        <!-- Messages Placeholder for JS -->
+        <div id="django-messages" data-has-success="{% if messages %}{% for m in messages %}{% if m.tags == 'success' %}true{% endif %}{% endfor %}{% endif %}" style="display: none;"></div>
 
         <!-- Messages -->
-        <div class="container mt-4">
+        <div class="container-fluid px-4 mt-4 page-fade-in">
             {% if messages %}
                 {% for message in messages %}
                     <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -127,7 +149,16 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Custom JS -->
     <script>
+        // Initialize Bootstrap tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+
         // Sidebar toggle
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('sidebarToggle');
@@ -173,6 +204,24 @@
                 localStorage.setItem('theme', 'light');
             }
         });
+
+        // Global success handler for confetti
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#3170b5', '#60a5fa', '#ffffff']
+                });
+            }
+        }
+
+        // Check for success messages to trigger confetti (Linter friendly)
+        const messagesEl = document.getElementById('django-messages');
+        if (messagesEl && messagesEl.getAttribute('data-has-success') === 'true') {
+            setTimeout(triggerConfetti, 500);
+        }
     </script>
     {% block extra_js %}{% endblock %}
 </body>

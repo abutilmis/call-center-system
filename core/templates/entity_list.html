@@ -4,11 +4,10 @@
 {% block content %}
 <div class="dashboard-wrapper">
     <!-- Header Section -->
-    <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 p-4 bg-white rounded-4 shadow-sm">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 p-4 glass-panel rounded-4 shadow-sm border-0">
         <div>
             <h2 class="fw-bold mb-1">Manage {{ entity_type|title }}s</h2>
-            <p class="text-muted mb-0">Browse, search, and manage your center's {{ entity_type }} records.</p>
+            <p class="text-muted mb-0">Browse and manage center records.</p>
         </div>
         <div class="mt-3 mt-md-0 d-flex gap-2">
             {% if user.role == 'supervisor' %}
@@ -37,21 +36,21 @@
     </div>
 
     <!-- Filter & Search Section -->
-    <div class="row g-3 mb-4 align-items-end">
+    <div class="row g-4 mb-4 align-items-end">
         <!-- Tabs -->
         <div class="col-lg-6">
-            <ul class="nav nav-pills bg-white p-2 rounded-pill shadow-sm">
+            <ul class="nav nav-pills-custom shadow-sm">
                 <li class="nav-item">
-                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'agency' %}active{% endif %}"
-                        href="?type=agency&sort={{ sort }}&q={{ query }}">Agencies</a>
+                    <a class="nav-link {% if entity_type == 'agency' %}active{% endif %}"
+                        href="?type=agency&sort={{ sort }}&q={{ query }}"><i class="ri-hotel-line me-2"></i>Agencies</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'tvet' %}active{% endif %}"
-                        href="?type=tvet&sort={{ sort }}&q={{ query }}">TVET</a>
+                    <a class="nav-link {% if entity_type == 'tvet' %}active{% endif %}"
+                        href="?type=tvet&sort={{ sort }}&q={{ query }}"><i class="ri-graduation-cap-line me-2"></i>TVET</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'ossc' %}active{% endif %}"
-                        href="?type=ossc&sort={{ sort }}&q={{ query }}">OSSC</a>
+                    <a class="nav-link {% if entity_type == 'ossc' %}active{% endif %}"
+                        href="?type=ossc&sort={{ sort }}&q={{ query }}"><i class="ri-team-line me-2"></i>OSSC</a>
                 </li>
             </ul>
         </div>
@@ -69,17 +68,17 @@
 
         <div class="col-lg-4 col-md-8 position-relative">
             <label class="form-label small fw-bold text-muted ps-2">Quick Search</label>
-            <div class="input-group shadow-sm rounded-pill overflow-hidden position-relative">
-                <span class="input-group-text bg-white border-0"><i class="fas fa-search text-primary"></i></span>
-                <input type="text" id="searchInput" class="form-control border-0" placeholder="Type to search..."
-                    autocomplete="off" value="{{ query }}" style="padding-right: 125px; position: relative; z-index: 1;">
-                <span id="clearSearchBtn" class="position-absolute top-50 translate-middle-y text-muted"
-                    style="z-index: 5; cursor: pointer; display: none; right: 110px;" title="Clear Search"><i
-                        class="fas fa-times"></i></span>
-                <button class="btn btn-primary px-4 position-absolute end-0 top-0 bottom-0 m-0 border-start-0" id="searchBtn" style="z-index: 6; border-top-left-radius: 0; border-bottom-left-radius: 0;">Search</button>
+            <div class="search-input-group">
+                <i class="ri-search-line text-muted fs-5"></i>
+                <input type="text" id="searchInput" placeholder="Search by name or ID..." autocomplete="off" value="{{ query }}">
+                <div id="searchSpinner" class="spinner-border spinner-border-sm text-primary me-2" role="status" style="display: none;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <i id="clearSearchBtn" class="ri-close-circle-fill text-muted fs-5 me-2" style="cursor: pointer; display: none;" title="Clear Search"></i>
+                <button class="btn-search" id="searchBtn">Find</button>
             </div>
-            <div id="autocomplete-results" class="list-group shadow position-absolute w-100 z-3"
-                style="display: none; top: calc(100% + 5px); left: 0; right: 0; z-index: 1000; border-radius: 1rem;"></div>
+            <div id="autocomplete-results" class="list-group shadow-lg position-absolute w-100 mt-2"
+                style="display: none; top: 100%; left: 0; right: 0; z-index: 1050; border-radius: 12px; border: none;"></div>
         </div>
     </div>
 
@@ -147,7 +146,7 @@
                 </thead>
                 <tbody>
                     {% for entity in entities %}
-                    <tr class="align-middle">
+                    <tr class="align-middle hover-scale">
                         {% if entity_type == 'agency' %}
                         <td class="ps-4">
                             <span class="fw-bold d-block">{{ entity.name }}</span>
@@ -183,14 +182,14 @@
                         <td><small class="text-muted">{{ entity.phone3|default:"—" }}</small></td>
                         {% endif %}
                         <td class="text-end pe-4">
-                            <div class="btn-group">
+                            <div class="d-flex justify-content-end gap-2">
                                 <a href="{% url 'entity_update' entity.pk %}"
-                                    class="btn btn-sm btn-light rounded-pill px-3 me-2" title="Edit">
-                                    <i class="fas fa-edit text-warning"></i>
+                                    class="btn btn-sm btn-outline-warning rounded-pill px-3" title="Edit">
+                                    <i class="ri-edit-line"></i>
                                 </a>
                                 <a href="{% url 'entity_delete' entity.pk %}"
-                                    class="btn btn-sm btn-light rounded-pill px-3" title="Delete">
-                                    <i class="fas fa-trash text-danger"></i>
+                                    class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Delete">
+                                    <i class="ri-delete-bin-line"></i>
                                 </a>
                             </div>
                         </td>
@@ -210,69 +209,59 @@
 
     <!-- Pagination Section -->
     {% if entities.has_other_pages %}
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-5 px-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-5 px-3 mb-5">
         <div class="text-muted small mb-3 mb-md-0">
-            Showing Page <strong>{{ entities.number }}</strong> of <strong>{{ entities.paginator.num_pages }}</strong>
+            Page <strong>{{ entities.number }}</strong> of <strong>{{ entities.paginator.num_pages }}</strong>
         </div>
         <nav aria-label="Page navigation">
-            <ul class="pagination modern-pagination mb-0">
+            <ul class="pagination pagination-compact mb-0">
                 <!-- First Page -->
                 <li class="page-item {% if not entities.has_previous %}disabled{% endif %}">
                     {% if entities.has_previous %}
-                    <a class="page-link"
+                    <a class="page-link shadow-sm"
                         href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}{{ filter_qs }}&page=1"
-                        title="First Page">
-                        <i class="fas fa-angle-double-left"></i>
+                        data-bs-toggle="tooltip" title="First Page">
+                        <i class="ri-arrow-left-double-line"></i>
                     </a>
                     {% else %}
-                    <span class="page-link"><i class="fas fa-angle-double-left"></i></span>
+                    <span class="page-link opacity-50"><i class="ri-arrow-left-double-line"></i></span>
                     {% endif %}
                 </li>
                 <!-- Previous Page -->
                 <li class="page-item {% if not entities.has_previous %}disabled{% endif %}">
                     {% if entities.has_previous %}
-                    <a class="page-link"
-                        href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}{{ filter_qs }}&page={{ entities.previous_page_number }}"
-                        title="Previous">
-                        <i class="fas fa-angle-left"></i>
+                    <a class="page-link shadow-sm"
+                        href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}{{ filter_qs }}&page={{ entities.previous_page_number }}">
+                        <i class="ri-arrow-left-s-line"></i>
                     </a>
                     {% else %}
-                    <span class="page-link"><i class="fas fa-angle-left"></i></span>
+                    <span class="page-link opacity-50"><i class="ri-arrow-left-s-line"></i></span>
                     {% endif %}
                 </li>
-                <!-- Page Dropdown -->
-                <li class="page-item mx-2">
-                    <select class="form-select form-select-sm rounded-pill" style="min-width: 80px;"
-                        onchange="window.location.href=this.value">
-                        {% for i in entities.paginator.page_range %}
-                        <option value="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}{{ filter_qs }}&page={{ i }}" {% if entities.number == i %}selected{% endif %}>
-                            Page {{ i }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </li>
+                
+                <li class="page-item active"><span class="page-link shadow-sm">{{ entities.number }}</span></li>
+
                 <!-- Next Page -->
                 <li class="page-item {% if not entities.has_next %}disabled{% endif %}">
                     {% if entities.has_next %}
-                    <a class="page-link"
-                        href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}{{ filter_qs }}&page={{ entities.next_page_number }}"
-                        title="Next">
-                        <i class="fas fa-angle-right"></i>
+                    <a class="page-link shadow-sm"
+                        href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}{{ filter_qs }}&page={{ entities.next_page_number }}">
+                        <i class="ri-arrow-right-s-line"></i>
                     </a>
                     {% else %}
-                    <span class="page-link"><i class="fas fa-angle-right"></i></span>
+                    <span class="page-link opacity-50"><i class="ri-arrow-right-s-line"></i></span>
                     {% endif %}
                 </li>
                 <!-- Last Page -->
                 <li class="page-item {% if not entities.has_next %}disabled{% endif %}">
                     {% if entities.has_next %}
-                    <a class="page-link"
+                    <a class="page-link shadow-sm"
                         href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}{{ filter_qs }}&page={{ entities.paginator.num_pages }}"
-                        title="Last Page">
-                        <i class="fas fa-angle-double-right"></i>
+                        data-bs-toggle="tooltip" title="Last Page">
+                        <i class="ri-arrow-right-double-line"></i>
                     </a>
                     {% else %}
-                    <span class="page-link"><i class="fas fa-angle-double-right"></i></span>
+                    <span class="page-link opacity-50"><i class="ri-arrow-right-double-line"></i></span>
                     {% endif %}
                 </li>
             </ul>
@@ -410,20 +399,24 @@
             resultsDiv.style.display = 'none';
             return;
         }
+        const spinner = document.getElementById('searchSpinner');
+        if (spinner) spinner.style.display = 'inline-block';
+
         fetch(`?type=${currentType}&q=${encodeURIComponent(query)}&sort=${currentSort}${filterParamStr}`, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
             .then(response => response.json())
             .then(data => {
+                if (spinner) spinner.style.display = 'none';
                 let html = '';
                 if (data.results && data.results.length) {
-                    html += `<div class="p-2 text-muted small bg-light border-bottom text-center">Found ${data.results.length} matches in top 20</div>`;
+                    html += `<div class="p-2 text-muted small bg-light border-bottom text-center">Found ${data.results.length} matches</div>`;
                     html += data.results.map(item => `
-                    <a href="#" class="list-group-item list-group-item-action py-3 border-0 border-bottom" data-id="${item.entity_id}">
+                    <a href="#" class="list-group-item list-group-item-action py-3 border-0 border-bottom hover-lift" data-id="${item.entity_id}">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <strong class="text-primary">${item.name}</strong><br>
-                                <small class="text-muted"><i class="fas fa-phone-alt me-1"></i>${item.phone || 'N/A'}</small>
+                                <small class="text-muted"><i class="ri-phone-line me-1"></i>${item.phone || 'N/A'}</small>
                             </div>
                             <span class="badge bg-light text-secondary rounded-pill">${item.city || 'N/A'}</span>
                         </div>

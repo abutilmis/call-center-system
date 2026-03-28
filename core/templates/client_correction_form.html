@@ -34,21 +34,45 @@
                 </div>
             </div>
 
-            <div class="mb-4">
-                <label class="form-label fw-bold">Correction Type *</label>
-                <div class="d-flex gap-3 flex-wrap">
-                    <button type="button" class="btn btn-outline-primary type-btn rounded-pill px-4 mb-2" data-type="name">
-                        <i class="fas fa-user me-2"></i>Name
-                    </button>
-                    <button type="button" class="btn btn-outline-primary type-btn rounded-pill px-4 mb-2" data-type="dob">
-                        <i class="fas fa-calendar me-2"></i>Date of Birth
-                    </button>
-                    <button type="button" class="btn btn-outline-primary type-btn rounded-pill px-4 mb-2" data-type="sex">
-                        <i class="fas fa-venus-mars me-2"></i>Sex
-                    </button>
-                    <button type="button" class="btn btn-outline-primary type-btn rounded-pill px-4 mb-2" data-type="too_many_attempt">
-                        <i class="fas fa-redo me-2"></i>Too Many Attempt
-                    </button>
+            <div class="mb-5">
+                <label class="form-label fw-bold mb-3 d-block text-muted small text-uppercase letter-spacing-1">Select Correction Type</label>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="card type-card h-100 border-0 shadow-sm p-4 text-center hover-scale pointer" data-type="name">
+                            <div class="type-icon mb-3 mx-auto bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                                <i class="ri-user-settings-line fs-3"></i>
+                            </div>
+                            <h6 class="fw-bold mb-1">Name</h6>
+                            <p class="text-muted small mb-0">Correct spelling or full name</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card type-card h-100 border-0 shadow-sm p-4 text-center hover-scale pointer" data-type="dob">
+                            <div class="type-icon mb-3 mx-auto bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                                <i class="ri-calendar-event-line fs-3"></i>
+                            </div>
+                            <h6 class="fw-bold mb-1">Date of Birth</h6>
+                            <p class="text-muted small mb-0">Adjust birth year/month/day</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card type-card h-100 border-0 shadow-sm p-4 text-center hover-scale pointer" data-type="sex">
+                            <div class="type-icon mb-3 mx-auto bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                                <i class="ri-genderless-line fs-3"></i>
+                            </div>
+                            <h6 class="fw-bold mb-1">Sex</h6>
+                            <p class="text-muted small mb-0">Fix Male/Female designation</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card type-card h-100 border-0 shadow-sm p-4 text-center hover-scale pointer" data-type="too_many_attempt">
+                            <div class="type-icon mb-3 mx-auto bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                                <i class="ri-refresh-line fs-3"></i>
+                            </div>
+                            <h6 class="fw-bold mb-1">Too Many Attempts</h6>
+                            <p class="text-muted small mb-0">Reset lookup limit</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -83,19 +107,21 @@
         'too_many_attempt': []
     };
 
-    const typeBtns = document.querySelectorAll('.type-btn');
+    const typeCards = document.querySelectorAll('.type-card');
     const correctionType = document.getElementById('correctionType');
     const dynamicFields = document.getElementById('dynamicFields');
     const submitBtn = document.getElementById('submitBtn');
     const form = document.getElementById('correctionForm');
 
-    typeBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            typeBtns.forEach(b => b.classList.remove('active', 'btn-primary'));
-            typeBtns.forEach(b => b.classList.add('btn-outline-primary'));
+    typeCards.forEach(card => {
+        card.addEventListener('click', function() {
+            typeCards.forEach(c => {
+                c.classList.remove('active', 'border-primary', 'bg-primary-soft');
+                c.style.border = 'none';
+            });
             
-            this.classList.remove('btn-outline-primary');
-            this.classList.add('active', 'btn-primary');
+            this.classList.add('active', 'border-primary', 'bg-primary-soft');
+            this.style.border = '2px solid var(--primary)';
             
             const type = this.getAttribute('data-type');
             correctionType.value = type;
@@ -103,6 +129,11 @@
             renderFields(type);
             dynamicFields.style.display = 'flex';
             submitBtn.disabled = false;
+
+            // Smooth scroll to dynamic fields
+            setTimeout(() => {
+                dynamicFields.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
         });
     });
 
@@ -193,7 +224,7 @@
     const initialType = "{{ correction.correction_type|default:'' }}";
 
     if (initialType && initialOldData) {
-        document.querySelector(`.type-btn[data-type="${initialType}"]`).click();
+        document.querySelector(`.type-card[data-type="${initialType}"]`).click();
         
         // Timeout ensures fields are physically rendered before querying
         setTimeout(() => {
