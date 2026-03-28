@@ -60,14 +60,10 @@
         <div class="col-lg-2 col-md-4">
             <label class="form-label small fw-bold text-muted ps-2">Sort By</label>
             <select class="form-select rounded-pill border-0 shadow-sm" onchange="window.location.href=this.value">
-                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=name_asc" {% if
-                    sort=='name_asc' %}selected{% endif %}>Name (A-Z)</option>
-                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=name_desc" {% if
-                    sort=='name_desc' %}selected{% endif %}>Name (Z-A)</option>
-                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=date_desc" {% if
-                    sort=='date_desc' %}selected{% endif %}>Newest First</option>
-                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=date_asc" {% if
-                    sort=='date_asc' %}selected{% endif %}>Oldest First</option>
+                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
+                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name (Z-A)</option>
+                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Newest First</option>
+                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
             </select>
         </div>
 
@@ -240,9 +236,7 @@
                     <select class="form-select form-select-sm rounded-pill" style="min-width: 80px;"
                         onchange="window.location.href=this.value">
                         {% for i in entities.paginator.page_range %}
-                        <option
-                            value="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}{{ filter_qs }}&page={{ i }}" {%
-                            if entities.number==i %}selected{% endif %}>
+                        <option value="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}{{ filter_qs }}&page={{ i }}" {% if entities.number == i %}selected{% endif %}>
                             Page {{ i }}
                         </option>
                         {% endfor %}
