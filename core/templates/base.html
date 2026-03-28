@@ -40,8 +40,8 @@
             <div class="brand-container">
                 <div class="ams-logo">CCMS</div>
             </div>
-            <div class="sidebar-toggle-btn" id="sidebarToggle">
-                <i class="fas fa-chevron-left"></i>
+            <div class="sidebar-toggle-btn shadow-sm" id="sidebarToggle" title="Toggle Sidebar">
+                <i class="ri-arrow-left-s-line fs-5"></i>
             </div>
         </div>
 
@@ -165,8 +165,15 @@
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
 
+        // Load sidebar state
+        const savedSidebarState = localStorage.getItem('sidebar-collapsed');
+        if (savedSidebarState === 'true') {
+            sidebar.classList.add('collapsed');
+        }
+
         toggleBtn.addEventListener('click', function() {
             sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
         });
 
         if (mobileMenuBtn) {
