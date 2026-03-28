@@ -12,7 +12,8 @@
                     <i class="fas fa-layer-group"></i>
                 </div>
                 <div class="stat-label-power">Total Entities</div>
-                <div class="stat-number-power animate-number" data-target="{{ total_entities }}">{{ total_entities }}</div>
+                <div class="stat-number-power animate-number" data-target="{{ total_entities }}">{{ total_entities }}
+                </div>
                 <small class="opacity-75">All registered organizations</small>
             </div>
         </div>
@@ -23,7 +24,8 @@
                     <i class="fas fa-building"></i>
                 </div>
                 <div class="stat-label-power">Total Agencies</div>
-                <div class="stat-number-power animate-number" data-target="{{ agencies_count }}">{{ agencies_count }}</div>
+                <div class="stat-number-power animate-number" data-target="{{ agencies_count }}">{{ agencies_count }}
+                </div>
                 <small class="opacity-75">Service providers</small>
             </div>
         </div>
@@ -38,36 +40,40 @@
                 <small class="opacity-75">Educational institutions</small>
             </div>
         </div>
-        <!-- OCSS -->
+        <!-- OSSCs -->
         <div class="col-xl-4 col-md-6">
             <div class="stat-card-power" style="background: linear-gradient(135deg, #3170b5 0%, #4f83cc 100%);">
                 <div class="stat-icon-circle-power">
                     <i class="fas fa-users-cog"></i>
                 </div>
-                <div class="stat-label-power">Total OCSS</div>
-                <div class="stat-number-power animate-number" data-target="{{ ocss_count }}">{{ ocss_count }}</div>
+                <div class="stat-label-power">Total OSSCs</div>
+                <div class="stat-number-power animate-number" data-target="{{ ossc_count }}">{{ ossc_count }}</div>
                 <small class="opacity-75">Community support</small>
             </div>
         </div>
         <!-- Pending Corrections -->
         <div class="col-xl-4 col-md-6">
-            <div class="stat-card-power" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 15px 35px rgba(245, 158, 11, 0.2);">
+            <div class="stat-card-power"
+                style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 15px 35px rgba(245, 158, 11, 0.2);">
                 <div class="stat-icon-circle-power">
                     <i class="fas fa-exclamation-circle"></i>
                 </div>
                 <div class="stat-label-power">Pending Corrections</div>
-                <div class="stat-number-power animate-number" data-target="{{ pending_corrections }}">{{ pending_corrections }}</div>
+                <div class="stat-number-power animate-number" data-target="{{ pending_corrections }}">{{
+                    pending_corrections }}</div>
                 <small class="opacity-75">Awaiting supervisor review</small>
             </div>
         </div>
         <!-- Knowledge Base -->
         <div class="col-xl-4 col-md-6">
-            <div class="stat-card-power" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 15px 35px rgba(16, 185, 129, 0.2);">
+            <div class="stat-card-power"
+                style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 15px 35px rgba(16, 185, 129, 0.2);">
                 <div class="stat-icon-circle-power">
                     <i class="fas fa-book-open"></i>
                 </div>
                 <div class="stat-label-power">Knowledge Entries</div>
-                <div class="stat-number-power animate-number" data-target="{{ knowledge_count }}">{{ knowledge_count }}</div>
+                <div class="stat-number-power animate-number" data-target="{{ knowledge_count }}">{{ knowledge_count }}
+                </div>
                 <small class="opacity-75">Resources available</small>
             </div>
         </div>
@@ -97,7 +103,8 @@
                                     <span class="fw-bold">{{ entity.name }}</span>
                                 </td>
                                 <td>
-                                    <span class="badge {% if entity.entity_type == 'agency' %}bg-primary{% elif entity.entity_type == 'tvet' %}bg-success{% else %}bg-info{% endif %} rounded-pill">
+                                    <span
+                                        class="badge {% if entity.entity_type == 'agency' %}bg-primary{% elif entity.entity_type == 'tvet' %}bg-success{% else %}bg-info{% endif %} rounded-pill">
                                         {{ entity.get_entity_type_display }}
                                     </span>
                                 </td>
@@ -141,7 +148,8 @@
                     {% endfor %}
                 </div>
                 <div class="text-center mt-3">
-                    <a href="{% url 'announcement_list' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">View All</a>
+                    <a href="{% url 'announcement_list' %}"
+                        class="btn btn-sm btn-outline-primary rounded-pill px-3">View All</a>
                 </div>
                 {% else %}
                 <div class="text-center py-5">
@@ -156,7 +164,7 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Advanced Number Animation
         const counters = document.querySelectorAll('.animate-number');
         counters.forEach(counter => {
@@ -180,4 +188,4 @@
     });
 </script>
 {% endblock %}
-{% endblock %}
+{% endblock %}

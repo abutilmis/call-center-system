@@ -36,7 +36,7 @@ class Entity(models.Model):
     ENTITY_TYPES = (
         ('agency', 'Agency'),
         ('tvet', 'TVET'),
-        ('ocss', 'OCSS'),
+        ('ossc', 'OSSC'),
     )
     entity_id = models.AutoField(primary_key=True)
     entity_type = models.CharField(max_length=200, choices=ENTITY_TYPES, default='agency')

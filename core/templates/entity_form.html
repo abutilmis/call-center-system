@@ -75,8 +75,8 @@
                 </div>
             </div>
 
-            <!-- TVET/OCSS fields -->
-            <div id="tvetOcssFields" style="display: none;">
+            <!-- TVET/OSSC fields -->
+            <div id="tvetOsscFields" style="display: none;">
                 <div class="row g-4 mb-4">
                     <div class="col-md-6">
                         <div class="form-group mb-0">
@@ -92,7 +92,7 @@
                     </div>
                 </div>
             </div>
-            <div id="ocssFields" style="display: none;">
+            <div id="osscFields" style="display: none;">
                 <div class="row g-4 mb-4">
                     <div class="col-md-6">
                         <div class="form-group mb-0">
@@ -145,27 +145,27 @@
     document.addEventListener('DOMContentLoaded', function () {
         const entityTypeSelect = document.getElementById('id_entity_type');
         const agencyDiv = document.getElementById('agencyFields');
-        const tvetOcssDiv = document.getElementById('tvetOcssFields');
-        const ocssDiv = document.getElementById('ocssFields');
+        const tvetOsscDiv = document.getElementById('tvetOsscFields');
+        const osscDiv = document.getElementById('osscFields');
 
         function toggleFields() {
             const selected = entityTypeSelect.value;
             if (selected === 'agency') {
                 agencyDiv.style.display = 'block';
-                tvetOcssDiv.style.display = 'none';
-                ocssDiv.style.display = 'none';
+                tvetOsscDiv.style.display = 'none';
+                osscDiv.style.display = 'none';
             } else if (selected === 'tvet') {
                 agencyDiv.style.display = 'none';
-                tvetOcssDiv.style.display = 'block';
-                ocssDiv.style.display = 'none';
-            } else if (selected === 'ocss') {
+                tvetOsscDiv.style.display = 'block';
+                osscDiv.style.display = 'none';
+            } else if (selected === 'ossc') {
                 agencyDiv.style.display = 'none';
-                tvetOcssDiv.style.display = 'none';
-                ocssDiv.style.display = 'block';
+                tvetOsscDiv.style.display = 'none';
+                osscDiv.style.display = 'block';
             } else {
                 agencyDiv.style.display = 'none';
-                tvetOcssDiv.style.display = 'none';
-                ocssDiv.style.display = 'none';
+                tvetOsscDiv.style.display = 'none';
+                osscDiv.style.display = 'none';
             }
         }
 

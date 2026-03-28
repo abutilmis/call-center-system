@@ -27,7 +27,7 @@ def dashboard(request):
         'total_entities': Entity.objects.count(),
         'agencies_count': Entity.objects.filter(entity_type='agency').count(),
         'tvet_count': Entity.objects.filter(entity_type='tvet').count(),
-        'ocss_count': Entity.objects.filter(entity_type='ocss').count(),
+        'ossc_count': Entity.objects.filter(entity_type='ossc').count(),
         'pending_corrections': ClientCorrection.objects.filter(status='pending').count(),
         'knowledge_count': KnowledgeBase.objects.count(),
         'announcements': Announcement.objects.order_by('-timestamp')[:5],
@@ -76,7 +76,7 @@ def entity_list(request):
                 entities = entities.filter(
                     Q(name__icontains=query) | Q(phone__icontains=query) | Q(phone2__icontains=query)
                 )
-            elif entity_type == 'ocss':
+            elif entity_type == 'ossc':
                 entities = entities.filter(
                     Q(name__icontains=query) | Q(region__icontains=query) | Q(city__icontains=query) | Q(woreda__icontains=query)
                 )
@@ -98,7 +98,7 @@ def entity_list(request):
 
         # AJAX autocomplete
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            if entity_type == 'ocss':
+            if entity_type == 'ossc':
                 results = entities.values('entity_id', 'name', 'region', 'city', 'woreda')[:20]
                 # Normalize to match frontend expectations (phone, phone2, city, woreda)
                 results_list = []
@@ -145,7 +145,7 @@ def entity_list(request):
 def delete_all_entities(request):
     if request.method == 'POST':
         entity_type = request.POST.get('entity_type')
-        if entity_type in ['agency', 'tvet', 'ocss']:
+        if entity_type in ['agency', 'tvet', 'ossc']:
             deleted_count, _ = Entity.objects.filter(entity_type=entity_type).delete()
             messages.success(request, f"Successfully deleted all {deleted_count} {entity_type} records.")
         else:
@@ -642,7 +642,7 @@ def upload_ossc(request):
 
                         entities_to_create.append(
                             Entity(
-                                entity_type='ocss',
+                                entity_type='ossc',
                                 name=name,
                                 region=region,
                                 city=zone,
@@ -659,9 +659,9 @@ def upload_ossc(request):
                     Entity.objects.bulk_create(entities_to_create)
 
                 if errors:
-                    messages.warning(request, f'{created} OCSS entries imported. {errors} rows skipped.')
+                    messages.warning(request, f'{created} OSSC entries imported. {errors} rows skipped.')
                 else:
-                    messages.success(request, f'{created} OCSS entries imported successfully.')
+                    messages.success(request, f'{created} OSSC entries imported successfully.')
             except Exception as e:
                 messages.error(request, f'Error processing file: {str(e)}')
             return redirect('entity_list')

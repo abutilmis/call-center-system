@@ -16,9 +16,9 @@
             <a href="{% url 'upload_agencies' %}" class="btn btn-outline-primary px-4 rounded-pill">
                 <i class="fas fa-upload me-2"></i>Upload Agency File
             </a>
-            {% elif entity_type == 'ocss' %}
+            {% elif entity_type == 'ossc' %}
             <a href="{% url 'upload_ossc' %}" class="btn btn-outline-primary px-4 rounded-pill">
-                <i class="fas fa-upload me-2"></i>Upload OCSS File
+                <i class="fas fa-upload me-2"></i>Upload OSSC File
             </a>
             {% elif entity_type == 'tvet' %}
             <a href="#" class="btn btn-outline-primary px-4 rounded-pill disabled">
@@ -50,8 +50,8 @@
                         href="?type=tvet&sort={{ sort }}&q={{ query }}">TVET</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'ocss' %}active{% endif %}"
-                        href="?type=ocss&sort={{ sort }}&q={{ query }}">OCSS</a>
+                    <a class="nav-link px-4 rounded-pill {% if entity_type == 'ossc' %}active{% endif %}"
+                        href="?type=ossc&sort={{ sort }}&q={{ query }}">OSSC</a>
                 </li>
             </ul>
         </div>
@@ -60,10 +60,14 @@
         <div class="col-lg-2 col-md-4">
             <label class="form-label small fw-bold text-muted ps-2">Sort By</label>
             <select class="form-select rounded-pill border-0 shadow-sm" onchange="window.location.href=this.value">
-                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
-                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name (Z-A)</option>
-                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Newest First</option>
-                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
+                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=name_asc" {% if
+                    sort=='name_asc' %}selected{% endif %}>Name (A-Z)</option>
+                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=name_desc" {% if
+                    sort=='name_desc' %}selected{% endif %}>Name (Z-A)</option>
+                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=date_desc" {% if
+                    sort=='date_desc' %}selected{% endif %}>Newest First</option>
+                <option value="?type={{ entity_type }}&q={{ query }}{{ filter_qs }}&sort=date_asc" {% if
+                    sort=='date_asc' %}selected{% endif %}>Oldest First</option>
             </select>
         </div>
 
@@ -74,7 +78,9 @@
                 <span class="input-group-text bg-white border-0"><i class="fas fa-search text-primary"></i></span>
                 <input type="text" id="searchInput" class="form-control border-0" placeholder="Type to search..."
                     autocomplete="off" value="{{ query }}" style="padding-right: 35px;">
-                <span id="clearSearchBtn" class="position-absolute end-0 top-50 translate-middle-y me-5 text-muted" style="z-index: 5; cursor: pointer; display: none;" title="Clear Search"><i class="fas fa-times"></i></span>
+                <span id="clearSearchBtn" class="position-absolute end-0 top-50 translate-middle-y me-5 text-muted"
+                    style="z-index: 5; cursor: pointer; display: none;" title="Clear Search"><i
+                        class="fas fa-times"></i></span>
                 <button class="btn btn-primary px-4" id="searchBtn" style="z-index: 6;">Search</button>
             </div>
             <div id="autocomplete-results" class="list-group shadow position-absolute w-100 z-3"
@@ -84,7 +90,9 @@
 
     <!-- Filter Panel Toggle -->
     <div class="d-flex justify-content-end mb-3">
-        <button class="btn btn-outline-secondary rounded-pill btn-sm shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="{% if active_filters %}true{% else %}false{% endif %}" aria-controls="filterPanel">
+        <button class="btn btn-outline-secondary rounded-pill btn-sm shadow-sm" type="button" data-bs-toggle="collapse"
+            data-bs-target="#filterPanel" aria-expanded="{% if active_filters %}true{% else %}false{% endif %}"
+            aria-controls="filterPanel">
             <i class="fas fa-filter me-1"></i> {% if active_filters %}Filters Applied{% else %}Show Filters{% endif %}
         </button>
     </div>
@@ -96,14 +104,17 @@
                 <input type="hidden" name="type" value="{{ entity_type }}">
                 <input type="hidden" name="q" value="{{ query }}">
                 <input type="hidden" name="sort" value="{{ sort }}">
-                
+
                 <div class="row g-3" id="filterContainer">
                     <!-- Filters populated by JS -->
                 </div>
-                
+
                 <div class="d-flex justify-content-end mt-3 gap-2">
-                    <a href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}" class="btn btn-light rounded-pill px-4" title="Clear All Filters"><i class="fas fa-times me-2"></i>Clear</a>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4"><i class="fas fa-check me-2"></i>Apply Filters</button>
+                    <a href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}"
+                        class="btn btn-light rounded-pill px-4" title="Clear All Filters"><i
+                            class="fas fa-times me-2"></i>Clear</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4"><i
+                            class="fas fa-check me-2"></i>Apply Filters</button>
                 </div>
             </form>
         </div>
@@ -120,7 +131,7 @@
                         <th>Primary Phone</th>
                         <th>Secondary Phone</th>
                         <th>City / Woreda</th>
-                        {% elif entity_type == 'ocss' %}
+                        {% elif entity_type == 'ossc' %}
                         <th class="ps-4">OSSC Name</th>
                         <th>Region</th>
                         <th>Zone/City</th>
@@ -148,7 +159,7 @@
                             <div>{{ entity.city|default:"—" }}</div>
                             <small class="text-muted">{{ entity.woreda|default:"" }}</small>
                         </td>
-                        {% elif entity_type == 'ocss' %}
+                        {% elif entity_type == 'ossc' %}
                         <td class="ps-4">
                             <span class="fw-bold d-block">{{ entity.name }}</span>
                             <small class="text-muted">ID: #{{ entity.entity_id }}</small>
@@ -203,7 +214,8 @@
                 <!-- First Page -->
                 <li class="page-item {% if not entities.has_previous %}disabled{% endif %}">
                     {% if entities.has_previous %}
-                    <a class="page-link" href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}{{ filter_qs }}&page=1"
+                    <a class="page-link"
+                        href="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}{{ filter_qs }}&page=1"
                         title="First Page">
                         <i class="fas fa-angle-double-left"></i>
                     </a>
@@ -228,7 +240,9 @@
                     <select class="form-select form-select-sm rounded-pill" style="min-width: 80px;"
                         onchange="window.location.href=this.value">
                         {% for i in entities.paginator.page_range %}
-                        <option value="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}{{ filter_qs }}&page={{ i }}" {% if entities.number == i %}selected{% endif %}>
+                        <option
+                            value="?type={{ entity_type }}&q={{ query }}&sort={{ sort }}{{ filter_qs }}&page={{ i }}" {%
+                            if entities.number==i %}selected{% endif %}>
                             Page {{ i }}
                         </option>
                         {% endfor %}
@@ -296,7 +310,7 @@
     // Configuration for dynamic filters
     const filterConfigs = {
         'agency': ['name', 'phone', 'phone2', 'city', 'woreda'],
-        'ocss': ['name', 'region', 'city', 'woreda'],
+        'ossc': ['name', 'region', 'city', 'woreda'],
         'tvet': ['name', 'registration_id', 'location', 'phone']
     };
 
@@ -322,11 +336,11 @@
         const columns = filterConfigs[currentType] || [];
         filterContainer.innerHTML = '';
         const urlParams = new URLSearchParams(window.location.search);
-        
+
         columns.forEach(col => {
             const colDiv = document.createElement('div');
             colDiv.className = 'col-lg-3 col-md-4 col-sm-6';
-            
+
             const label = document.createElement('label');
             label.className = 'form-label small fw-bold text-muted ps-2';
             label.innerText = filterLabels[col] || col;
@@ -334,7 +348,7 @@
             const select = document.createElement('select');
             select.className = 'form-select rounded-pill border-0 shadow-sm';
             select.name = `filter_${col}`;
-            
+
             const defaultOpt = document.createElement('option');
             defaultOpt.value = '';
             defaultOpt.innerText = 'All';
@@ -348,19 +362,19 @@
             fetch(`?type=${currentType}&action=get_filters&column=${col}`, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
-            .then(res => res.json())
-            .then(data => {
-                data.values.forEach(val => {
-                    if(!val) return;
-                    const opt = document.createElement('option');
-                    opt.value = val;
-                    opt.innerText = val;
-                    if (urlParams.get(`filter_${col}`) === String(val)) {
-                        opt.selected = true;
-                    }
-                    select.appendChild(opt);
+                .then(res => res.json())
+                .then(data => {
+                    data.values.forEach(val => {
+                        if (!val) return;
+                        const opt = document.createElement('option');
+                        opt.value = val;
+                        opt.innerText = val;
+                        if (urlParams.get(`filter_${col}`) === String(val)) {
+                            opt.selected = true;
+                        }
+                        select.appendChild(opt);
+                    });
                 });
-            });
         });
     }
 
@@ -381,7 +395,7 @@
     }
 
     if (clearSearchBtn) {
-        clearSearchBtn.addEventListener('click', function() {
+        clearSearchBtn.addEventListener('click', function () {
             searchInput.value = '';
             toggleClearBtn();
             window.location.href = `?type=${currentType}&q=&sort=${currentSort}${filterParamStr}`;
