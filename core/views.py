@@ -9,6 +9,8 @@ from .forms import EntityForm, KnowledgeBaseForm, AnnouncementForm, AgentRegistr
 from django.db import connection
 from django.http import HttpResponse
 import json
+from .utils import build_summary, build_status_update
+from .telegram import send_telegram_message
 
 User = get_user_model()
 
@@ -317,7 +319,7 @@ def client_correction_create(request):
             new_data_dict = {}
 
         if correction_type and client_name and phone:
-            ClientCorrection.objects.create(
+            correction = ClientCorrection.objects.create(
                 correction_type=correction_type,
                 client_name=client_name,
                 phone=phone,
@@ -327,8 +329,16 @@ def client_correction_create(request):
                 agent=request.user,
                 status='pending'
             )
-            messages.success(request, "Client correction request submitted successfully.")
-            return redirect('client_correction_list')
+            
+            # Send to Telegram
+            summary = build_summary(correction)
+            success, msg = send_telegram_message(summary)
+            if success:
+                messages.success(request, "Correction request submitted and sent to Telegram group.")
+            else:
+                messages.warning(request, f"Request saved, but Telegram notification failed: {msg}")
+
+            return redirect('client_correction_detail', pk=correction.pk)
         else:
             messages.error(request, "Please fill in all required fields.")
             
@@ -345,6 +355,11 @@ def client_correction_approve(request, pk):
             correction.status = status
             correction.supervisor_comment = comment
             correction.save()
+            
+            # Send status update to Telegram
+            status_msg = build_status_update(correction)
+            send_telegram_message(status_msg)
+            
             messages.success(request, f"Request {status}.")
             return redirect('client_correction_list')
     return render(request, 'client_correction_approve.html', {'correction': correction})
@@ -356,60 +371,7 @@ def client_correction_detail(request, pk):
         messages.error(request, "You don't have permission to view this request.")
         return redirect('client_correction_list')
         
-    summary = ""
-    if correction.correction_type == 'name':
-        old_fn = correction.old_data.get('first_name', '')
-        old_fan = correction.old_data.get('father_name', '')
-        old_gn = correction.old_data.get('grandfather_name', '')
-        old_name = " ".join(filter(None, [old_fn, old_fan, old_gn]))
-
-        new_fn = correction.new_data.get('first_name', '')
-        new_fan = correction.new_data.get('father_name', '')
-        new_gn = correction.new_data.get('grandfather_name', '')
-        new_name = " ".join(filter(None, [new_fn, new_fan, new_gn]))
-
-        raw_summary = f"❌{old_name}\n✅{new_name}\n{correction.labor_id}\n{correction.phone}"
-        summary = "\n".join([line for line in raw_summary.split("\n") if line.strip()])
-
-    elif correction.correction_type == 'dob':
-        old_dob = correction.old_data.get('dob', '')
-        new_dob = correction.new_data.get('dob', '')
-        
-        try:
-            if old_dob and len(old_dob) == 10: old_dob = f"{old_dob[8:10]}-{old_dob[5:7]}-{old_dob[0:4]}"
-            if new_dob and len(new_dob) == 10: new_dob = f"{new_dob[8:10]}-{new_dob[5:7]}-{new_dob[0:4]}"
-        except:
-            pass
-            
-        lines = [
-            correction.client_name,
-            f"Phone: {correction.phone}"
-        ]
-        if correction.labor_id:
-            lines.append(f"Labor ID: {correction.labor_id}")
-            
-        if old_dob: lines.append(f"❌{old_dob}")
-        if new_dob: lines.append(f"✅{new_dob}")
-        summary = "\n".join(lines)
-
-    elif correction.correction_type == 'sex':
-        comment = correction.new_data.get('comment', 'Fixing prefix')
-        lines = [
-            correction.labor_id,
-            correction.client_name,
-            correction.phone,
-            f"Comment: {comment}"
-        ]
-        summary = "\n".join([line for line in lines if line.strip()])
-
-    elif correction.correction_type == 'too_many_attempt':
-        lines = [
-            correction.phone,
-            correction.client_name,
-            "Too many Attempts"
-        ]
-        summary = "\n".join([line for line in lines if line.strip()])
-
+    summary = build_summary(correction)
     return render(request, 'client_correction_detail.html', {'correction': correction, 'telegram_summary': summary})
 
 @login_required
