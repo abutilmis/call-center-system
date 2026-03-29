@@ -332,11 +332,13 @@ def client_correction_create(request):
             
             # Send to Telegram
             summary = build_summary(correction)
-            success, msg = send_telegram_message(summary)
+            success, result = send_telegram_message(summary)
             if success:
+                correction.telegram_message_id = result
+                correction.save()
                 messages.success(request, "Correction request submitted and sent to Telegram group.")
             else:
-                messages.warning(request, f"Request saved, but Telegram notification failed: {msg}")
+                messages.warning(request, f"Request saved, but Telegram notification failed: {result}")
 
             return redirect('client_correction_detail', pk=correction.pk)
         else:
@@ -356,13 +358,40 @@ def client_correction_approve(request, pk):
             correction.supervisor_comment = comment
             correction.save()
             
-            # Send status update to Telegram
+            # Send status update to Telegram (as threaded reply)
             status_msg = build_status_update(correction)
-            send_telegram_message(status_msg)
+            send_telegram_message(status_msg, reply_to_message_id=correction.telegram_message_id)
             
             messages.success(request, f"Request {status}.")
             return redirect('client_correction_list')
     return render(request, 'client_correction_approve.html', {'correction': correction})
+
+@login_required
+@supervisor_required
+def client_correction_bulk_action(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        correction_ids = request.POST.getlist('correction_ids')
+        comment = request.POST.get('bulk_comment', 'Bulk processed')
+        
+        if action in ['approved', 'rejected'] and correction_ids:
+            corrections = ClientCorrection.objects.filter(request_id__in=correction_ids, status='pending')
+            count = corrections.count()
+            
+            for correction in corrections:
+                correction.status = action
+                correction.supervisor_comment = comment
+                correction.save()
+                
+                # Send threaded Telegram reply for each
+                status_msg = build_status_update(correction)
+                send_telegram_message(status_msg, reply_to_message_id=correction.telegram_message_id)
+            
+            messages.success(request, f"Successfully {action} {count} correction requests.")
+        else:
+            messages.error(request, "No requests selected or invalid action.")
+            
+    return redirect('client_correction_list')
 
 @login_required
 def client_correction_detail(request, pk):

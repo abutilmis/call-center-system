@@ -84,6 +84,7 @@ class ClientCorrection(models.Model):
     agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name='client_corrections')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     supervisor_comment = models.TextField(blank=True)
+    telegram_message_id = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

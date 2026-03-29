@@ -20,70 +20,138 @@
         </div>
     </div>
 
-    <div class="activity-card p-0 overflow-hidden">
-        <div class="table-responsive">
-            <table class="table modern-table mb-0 px-4">
-                <thead>
-                    <tr>
-                        <th class="ps-4">Request #</th>
-                        <th>Type</th>
-                        <th>Client Name</th>
-                        <th>Phone</th>
-                        <th>Labor ID</th>
-                        <th>Status</th>
-                        <th>Submitted By</th>
-                        <th>Date</th>
-                        <th class="text-end pe-4">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for req in corrections %}
-                    <tr class="align-middle hover-scale">
-                        <td class="ps-4 fw-bold text-primary">REQ-{{ req.request_id|stringformat:"04d" }}</td>
-                        <td>
-                            <i class="{% if req.correction_type == 'name' %}ri-user-settings-line text-primary{% elif req.correction_type == 'dob' %}ri-calendar-event-line text-info{% else %}ri-genderless-line text-warning{% endif %} me-2"></i>
-                            {{ req.get_correction_type_display }}
-                        </td>
-                        <td class="fw-bold text-dark">{{ req.client_name }}</td>
-                        <td>{{ req.phone }}</td>
-                        <td>{{ req.labor_id|default:"—" }}</td>
-                        <td>
-                            {% if req.status == 'pending' %}
-                            <span class="badge bg-warning-soft text-warning rounded-pill px-3 py-2 fs-6 shadow-sm"><i class="ri-time-line me-1"></i>Pending</span>
-                            {% elif req.status == 'approved' %}
-                            <span class="badge bg-success-soft text-success rounded-pill px-3 py-2 fs-6 shadow-sm"><i class="ri-checkbox-circle-line me-1"></i>Approved</span>
-                            {% else %}
-                            <span class="badge bg-danger-soft text-danger rounded-pill px-3 py-2 fs-6 shadow-sm"><i class="ri-close-circle-line me-1"></i>Rejected</span>
+    <form id="bulkActionForm" method="POST" action="{% url 'client_correction_bulk' %}">
+        {% csrf_token %}
+        <div class="activity-card p-0 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table modern-table mb-0 px-4">
+                    <thead>
+                        <tr>
+                            {% if request.user.role == 'supervisor' %}
+                            <th class="ps-4" style="width: 40px;">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="selectAll">
+                                </div>
+                            </th>
                             {% endif %}
-                        </td>
-                        <td>{{ req.agent.username }}</td>
-                        <td class="text-muted small">{{ req.created_at|date:"M d, Y" }}</td>
-                        <td class="text-end pe-4">
-                            <div class="d-flex justify-content-end gap-2">
-                                <a href="{% url 'client_correction_detail' req.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 " title="View">
-                                    <i class="ri-eye-line me-1"></i> View
-                                </a>
-                                
-                                {% if req.status == 'pending' %}
-                                    {% if request.user.id == req.agent.id or request.user.role == 'supervisor' %}
-                                    <a href="{% url 'client_correction_update' req.pk %}" class="btn btn-sm btn-outline-warning rounded-pill px-3" title="Edit"><i class="ri-edit-line"></i></a>
-                                    <a href="{% url 'client_correction_delete' req.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Delete"><i class="ri-delete-bin-line"></i></a>
+                            <th class="{% if request.user.role != 'supervisor' %}ps-4{% endif %}">Request #</th>
+                            <th>Type</th>
+                            <th>Client Name</th>
+                            <th>Phone</th>
+                            <th>Labor ID</th>
+                            <th>Status</th>
+                            <th>Submitted By</th>
+                            <th>Date</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in corrections %}
+                        <tr class="align-middle hover-scale">
+                            {% if request.user.role == 'supervisor' %}
+                            <td class="ps-4">
+                                <div class="form-check">
+                                    {% if req.status == 'pending' %}
+                                    <input class="form-check-input correction-checkbox" type="checkbox" name="correction_ids" value="{{ req.request_id }}">
                                     {% endif %}
+                                </div>
+                            </td>
+                            {% endif %}
+                            <td class="{% if request.user.role != 'supervisor' %}ps-4{% endif %} fw-bold text-primary">REQ-{{ req.request_id|stringformat:"04d" }}</td>
+                            <td>
+                                <i class="{% if req.correction_type == 'name' %}ri-user-settings-line text-primary{% elif req.correction_type == 'dob' %}ri-calendar-event-line text-info{% else %}ri-genderless-line text-warning{% endif %} me-2"></i>
+                                {{ req.get_correction_type_display }}
+                            </td>
+                            <td class="fw-bold text-dark">{{ req.client_name }}</td>
+                            <td>{{ req.phone }}</td>
+                            <td>{{ req.labor_id|default:"—" }}</td>
+                            <td>
+                                {% if req.status == 'pending' %}
+                                <span class="badge bg-warning-soft text-warning rounded-pill px-3 py-2 fs-6 shadow-sm"><i class="ri-time-line me-1"></i>Pending</span>
+                                {% elif req.status == 'approved' %}
+                                <span class="badge bg-success-soft text-success rounded-pill px-3 py-2 fs-6 shadow-sm"><i class="ri-checkbox-circle-line me-1"></i>Approved</span>
+                                {% else %}
+                                <span class="badge bg-danger-soft text-danger rounded-pill px-3 py-2 fs-6 shadow-sm"><i class="ri-close-circle-line me-1"></i>Rejected</span>
                                 {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="8" class="text-center py-5">
-                            <i class="fas fa-clipboard-list fa-3x text-light mb-3"></i>
-                            <p class="text-muted">No correction requests found.</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            </td>
+                            <td>{{ req.agent.username }}</td>
+                            <td class="text-muted small">{{ req.created_at|date:"M d, Y" }}</td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{% url 'client_correction_detail' req.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 " title="View">
+                                        <i class="ri-eye-line me-1"></i> View
+                                    </a>
+                                    
+                                    {% if req.status == 'pending' %}
+                                        {% if request.user.id == req.agent.id or request.user.role == 'supervisor' %}
+                                        <a href="{% url 'client_correction_update' req.pk %}" class="btn btn-sm btn-outline-warning rounded-pill px-3" title="Edit"><i class="ri-edit-line"></i></a>
+                                        <a href="{% url 'client_correction_delete' req.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Delete"><i class="ri-delete-bin-line"></i></a>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center py-5">
+                                <i class="ri-inbox-line ri-3x text-light mb-3"></i>
+                                <p class="text-muted">No correction requests found.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+
+        {% if request.user.role == 'supervisor' %}
+        <!-- Bulk Action Bar -->
+        <div id="bulkActionBar" class="glass-panel p-4 rounded-4 shadow-lg border-primary border-opacity-25 mt-4 d-none animate-slide-up">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <span class="fw-bold text-primary"><i class="ri-checkbox-multiple-line me-2"></i> <span id="selectedCount">0</span> selected</span>
+                    <input type="text" name="bulk_comment" class="form-control form-control-sm mt-2 border-0 bg-light" placeholder="Bulk action comment (optional)...">
+                </div>
+                <div class="col-md-8 text-end d-flex gap-2 justify-content-end">
+                    <button type="submit" name="action" value="approved" class="btn btn-success rounded-pill px-4 fw-bold">
+                        <i class="ri-checkbox-circle-line me-1"></i> Bulk Approve
+                    </button>
+                    <button type="submit" name="action" value="rejected" class="btn btn-danger-soft text-danger border-0 rounded-pill px-4 fw-bold" style="background: rgba(239, 68, 68, 0.1);">
+                        <i class="ri-close-circle-line me-1"></i> Bulk Reject
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.correction-checkbox');
+        const bulkBar = document.getElementById('bulkActionBar');
+        const countSpan = document.getElementById('selectedCount');
+
+        function updateBar() {
+            const checked = document.querySelectorAll('.correction-checkbox:checked');
+            countSpan.innerText = checked.length;
+            if (checked.length > 0) {
+                bulkBar.classList.remove('d-none');
+            } else {
+                bulkBar.classList.add('d-none');
+            }
+        }
+
+        selectAll?.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateBar();
+        });
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateBar);
+        });
+    });
+</script>
 </div>
 {% endblock %}

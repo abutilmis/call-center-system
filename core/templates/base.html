@@ -60,15 +60,13 @@
             </a>
             <a href="{% url 'client_correction_list' %}" class="nav-item hover-scale {% if 'client_correction' in request.resolver_match.url_name and request.resolver_match.url_name != 'client_correction_create' %}active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="right" title="Correction Requests">
                 <i class="ri-edit-line"></i>
-                <span class="nav-text w-100">
-                    <span class="d-flex align-items-center justify-content-between">
-                        <span>Corrections</span>
-                        {% get_pending_corrections_count as pending_count %}
-                        {% if pending_count > 0 %}
-                        <span class="badge bg-white text-primary rounded-pill ms-2" style="font-size: 0.7rem;">{{ pending_count }}</span>
-                        {% endif %}
-                    </span>
+                <span class="nav-text w-100">Corrections</span>
+                {% get_pending_corrections_count as pending_count %}
+                {% if pending_count > 0 %}
+                <span class="badge rounded-pill ms-auto pending-badge {% if pending_count >= 10 %}bg-danger animate-pulse{% else %}bg-white text-primary{% endif %}" style="font-size: 0.7rem; min-width: 18px;">
+                    {{ pending_count }}
                 </span>
+                {% endif %}
             </a>
             <a href="{% url 'knowledge_list' %}" class="nav-item hover-scale {% if 'knowledge' in request.resolver_match.url_name %}active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="right" title="Knowledge Base">
                 <i class="ri-book-open-line"></i>
