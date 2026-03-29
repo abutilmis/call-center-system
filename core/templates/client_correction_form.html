@@ -30,7 +30,7 @@
                     <label class="form-label fw-bold small text-uppercase opacity-75">Labor ID / Registration ID</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-0 rounded-start-pill ps-3"><i class="ri-id-card-line text-primary"></i></span>
-                        <input type="text" name="labor_id" id="laborId" class="form-control border-0 bg-light rounded-end-pill px-3" value="{{ correction.labor_id|default:'' }}" placeholder="e.g. LB-...">
+                        <input type="text" name="labor_id" id="laborId" class="form-control border-0 bg-light rounded-end-pill px-3" value="{{ correction.labor_id|default:'' }}" placeholder="e.g. EM-...">
                     </div>
                 </div>
             </div>
@@ -112,14 +112,16 @@
         'name': [
             { id: 'first_name', label: 'First Name' },
             { id: 'father_name', label: 'Father Name' },
-            { id: 'grandfather_name', label: 'Grandfather Name' }
+            { id: 'grandfather_name', label: 'Grandfather Name' },
+            { id: 'comment', label: 'Correction Remark', type: 'textarea', newOnly: true }
         ],
         'dob': [
-            { id: 'dob', label: 'Date of Birth', type: 'date' }
+            { id: 'dob', label: 'Date of Birth', type: 'date' },
+            { id: 'comment', label: 'Correction Remark', type: 'textarea', newOnly: true }
         ],
         'sex': [
             { id: 'sex', label: 'Sex (M/F)' },
-            { id: 'comment', label: 'Comment (e.g., Fixing Mistaken EM/EF Prefix)' }
+            { id: 'comment', label: 'Correction Remark', type: 'textarea', newOnly: true }
         ],
         'too_many_attempt': []
     };
@@ -169,18 +171,36 @@
 
             fields.forEach(f => {
                 const inputType = f.type || 'text';
-                oldCol.innerHTML += `
-                    <div class="mb-3">
-                        <label class="form-label">${f.label}</label>
-                        <input type="${inputType}" class="form-control rounded-pill px-3 old-input" data-key="${f.id}" placeholder="Current ${f.label.toLowerCase()}">
-                    </div>
-                `;
-                newCol.innerHTML += `
-                    <div class="mb-3">
-                        <label class="form-label">${f.label}</label>
-                        <input type="${inputType}" class="form-control rounded-pill px-3 new-input" data-key="${f.id}" placeholder="New ${f.label.toLowerCase()}">
-                    </div>
-                `;
+                
+                // Add to Old Column if not 'newOnly'
+                if (!f.newOnly) {
+                    oldCol.innerHTML += `
+                        <div class="mb-3">
+                            <label class="form-label fw-600 small text-muted">${f.label}</label>
+                            <input type="${inputType}" class="form-control rounded-pill px-3 old-input border-0 bg-light" data-key="${f.id}" placeholder="Current ${f.label.toLowerCase()}">
+                        </div>
+                    `;
+                } else {
+                    // Placeholder for alignment in old column
+                    oldCol.innerHTML += `<div class="mb-3" style="height: 0px; opacity: 0; pointer-events: none;"></div>`;
+                }
+                
+                // Add to New Column
+                if (f.type === 'textarea') {
+                    newCol.innerHTML += `
+                        <div class="mb-3">
+                            <label class="form-label fw-600 small text-muted">${f.label}</label>
+                            <textarea class="form-control rounded-3 px-3 new-input border-0 bg-light shadow-inner" rows="3" data-key="${f.id}" placeholder="Provide additional details if needed..."></textarea>
+                        </div>
+                    `;
+                } else {
+                    newCol.innerHTML += `
+                        <div class="mb-3">
+                            <label class="form-label fw-600 small text-muted">${f.label}</label>
+                            <input type="${inputType}" class="form-control rounded-pill px-3 new-input border-0 bg-light" data-key="${f.id}" placeholder="New ${f.label.toLowerCase()}">
+                        </div>
+                    `;
+                }
             });
             
             dynamicFields.appendChild(oldCol);
