@@ -4,160 +4,141 @@
 {% block content %}
 <div class="dashboard-wrapper page-fade-in">
     <!-- Welcome Section -->
-    <div class="d-flex align-items-center justify-content-between mb-4 p-4 glass-panel rounded-4 shadow-sm border-0">
-        <div class="d-flex align-items-center gap-3">
-            <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-4" style="width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 12px var(--primary-glow);">
+    <div class="welcome-panel-premium mb-5 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+        <div class="d-flex align-items-center gap-4 position-relative z-1">
+            <div class="avatar-circle bg-white text-primary d-flex align-items-center justify-content-center fw-800 fs-2 animate-float" style="width: 80px; height: 80px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
                 {{ user.username|slice:":1"|upper }}
             </div>
             <div>
-                <h3 class="mb-0 fw-bold">Good Day, {{ user.username }}!</h3>
-                <p class="text-muted mb-0">Here's what's happening in your center today.</p>
+                <h1 class="mb-1 fw-800 text-white">Welcome back, {{ user.username }}!</h1>
+                <p class="text-white opacity-75 mb-0 fs-5">You have <span class="fw-bold">{{ total_entities }}</span> active entities under management.</p>
             </div>
         </div>
-        <div class="text-end d-none d-md-block">
-            <div class="text-muted small fw-medium">Last Login</div>
-            <div class="fw-bold">{{ user.last_login|date:"M d, H:m" }}</div>
+        <div class="text-md-end position-relative z-1 glass-panel p-3 border-0 bg-white-10" style="background: rgba(255,255,255,0.1);">
+            <div class="text-white opacity-75 small fw-bold text-uppercase letter-spacing-1">Activity Sync</div>
+            <div class="h4 fw-bold text-white mb-0">{{ user.last_login|date:"H:i" }} <span class="fs-6 fw-normal opacity-50">Today</span></div>
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="row g-3 mb-5">
-        <div class="col-md-3">
-            <a href="{% url 'entity_create' %}?type=agency" class="card h-100 border-0 shadow-sm p-3 hover-lift text-decoration-none">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="bg-primary text-white rounded-3 p-2"><i class="ri-add-line fs-4"></i></div>
-                    <span class="fw-bold text-dark">Add Agency</span>
-                </div>
-            </a>
+    <!-- Quick Access Hub -->
+    <div class="mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h5 class="fw-800 mb-0"><i class="ri-flashlight-fill text-primary me-2"></i>Quick Operations</h5>
+            <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill">System Ready</span>
         </div>
-        <div class="col-md-3">
-            <a href="{% url 'client_correction_create' %}" class="card h-100 border-0 shadow-sm p-3 hover-lift text-decoration-none">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="bg-warning text-white rounded-3 p-2"><i class="ri-edit-box-line fs-4"></i></div>
-                    <span class="fw-bold text-dark">New Correction</span>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a href="{% url 'knowledge_list' %}" class="card h-100 border-0 shadow-sm p-3 hover-lift text-decoration-none">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="bg-success text-white rounded-3 p-2"><i class="ri-search-eye-line fs-4"></i></div>
-                    <span class="fw-bold text-dark">Search KB</span>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3">
-            <a href="{% url 'announcement_list' %}" class="card h-100 border-0 shadow-sm p-3 hover-lift text-decoration-none">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="bg-info text-white rounded-3 p-2"><i class="ri-megaphone-line fs-4"></i></div>
-                    <span class="fw-bold text-dark">Announcements</span>
-                </div>
-            </a>
+        <div class="row g-4">
+            <div class="col-6 col-md-3">
+                <a href="{% url 'entity_create' %}?type=agency" class="quick-action-premium">
+                    <div class="icon-box bg-primary shadow-sm"><i class="ri-add-circle-fill"></i></div>
+                    <span>Add Agency</span>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{% url 'client_correction_create' %}" class="quick-action-premium">
+                    <div class="icon-box bg-warning shadow-sm"><i class="ri-edit-2-fill"></i></div>
+                    <span>Correction</span>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{% url 'knowledge_list' %}" class="quick-action-premium">
+                    <div class="icon-box bg-success shadow-sm"><i class="ri-book-3-fill"></i></div>
+                    <span>Knowledge</span>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{% url 'announcement_list' %}" class="quick-action-premium">
+                    <div class="icon-box bg-info shadow-sm"><i class="ri-notification-badge-fill"></i></div>
+                    <span>Updates</span>
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Main Stats Grid -->
+    <!-- Intelligence Grid -->
     <div class="row g-4 mb-5">
         <!-- Total Entities -->
         <div class="col-xl-3 col-md-6">
-            <div class="card h-100 border-0 shadow-sm p-4 hover-lift" style="border-right: 4px solid var(--primary) !important;">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <div class="text-muted small fw-bold text-uppercase mb-1">Total Entities</div>
-                        <h2 class="fw-bold mb-0 animate-number" data-target="{{ total_entities }}">0</h2>
-                    </div>
-                    <div class="p-3 bg-light rounded-4 text-primary">
-                        <i class="ri-community-line fs-2"></i>
-                    </div>
+            <div class="stat-card-premium card-glow-primary">
+                <div class="icon-wrapper bg-primary-soft text-primary">
+                    <i class="ri-global-line"></i>
                 </div>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-primary" style="width: 100%;"></div>
+                <div class="stat-label">Total Portfolio</div>
+                <div class="stat-value animate-number" data-target="{{ total_entities }}">0</div>
+                <div class="mt-3 small text-muted d-flex align-items-center gap-1">
+                    <i class="ri-arrow-right-up-line text-success"></i> <span class="text-success fw-bold">Active</span> system records
                 </div>
             </div>
         </div>
         <!-- Agencies -->
         <div class="col-xl-3 col-md-6">
-            <div class="card h-100 border-0 shadow-sm p-4 hover-lift" style="border-right: 4px solid #3b82f6 !important;">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <div class="text-muted small fw-bold text-uppercase mb-1">Agencies</div>
-                        <h2 class="fw-bold mb-0 animate-number" data-target="{{ agencies_count }}">0</h2>
-                    </div>
-                    <div class="p-3 bg-light rounded-4 text-primary" style="color: #3b82f6 !important;">
-                        <i class="ri-hotel-line fs-2"></i>
-                    </div>
+            <div class="stat-card-premium">
+                <div class="icon-wrapper" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                    <i class="ri-building-2-line"></i>
                 </div>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar" style="width: 75%; background-color: #3b82f6;"></div>
-                </div>
+                <div class="stat-label">Agencies</div>
+                <div class="stat-value animate-number" data-target="{{ agencies_count }}">0</div>
+                <div class="mt-3 small text-muted">Verified partners</div>
             </div>
         </div>
         <!-- TVET -->
         <div class="col-xl-3 col-md-6">
-            <div class="card h-100 border-0 shadow-sm p-4 hover-lift" style="border-right: 4px solid #10b981 !important;">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <div class="text-muted small fw-bold text-uppercase mb-1">TVET</div>
-                        <h2 class="fw-bold mb-0 animate-number" data-target="{{ tvet_count }}">0</h2>
-                    </div>
-                    <div class="p-3 bg-light rounded-4 text-success">
-                        <i class="ri-graduation-cap-line fs-2"></i>
-                    </div>
+            <div class="stat-card-premium card-glow-success">
+                <div class="icon-wrapper bg-success-soft text-success">
+                    <i class="ri-graduation-cap-line"></i>
                 </div>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-success" style="width: 60%;"></div>
-                </div>
+                <div class="stat-label">TVET Institutions</div>
+                <div class="stat-value animate-number" data-target="{{ tvet_count }}">0</div>
+                <div class="mt-3 small text-muted">Technical training centers</div>
             </div>
         </div>
         <!-- OSSCs -->
         <div class="col-xl-3 col-md-6">
-            <div class="card h-100 border-0 shadow-sm p-4 hover-lift" style="border-right: 4px solid #6366f1 !important;">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <div class="text-muted small fw-bold text-uppercase mb-1">OSSCs</div>
-                        <h2 class="fw-bold mb-0 animate-number" data-target="{{ ossc_count }}">0</h2>
-                    </div>
-                    <div class="p-3 bg-light rounded-4" style="color: #6366f1;">
-                        <i class="ri-team-line fs-2"></i>
-                    </div>
+            <div class="stat-card-premium">
+                <div class="icon-wrapper" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+                    <i class="ri-community-line"></i>
                 </div>
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar" style="width: 45%; background-color: #6366f1;"></div>
-                </div>
+                <div class="stat-label">OSSCs</div>
+                <div class="stat-value animate-number" data-target="{{ ossc_count }}">0</div>
+                <div class="mt-3 small text-muted">Service support centers</div>
             </div>
         </div>
     </div>
 
     <div class="row g-4">
         <!-- Recent Activity -->
-        <div class="col-lg-7">
-            <div class="activity-card h-100">
-                <div class="activity-title">
-                    <i class="fas fa-history me-2 text-primary"></i> Recent Activity
+        <div class="col-lg-8">
+            <div class="activity-card h-100 border-0 shadow-sm glass-panel">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h5 class="fw-800 mb-0"><i class="ri-history-line text-primary me-2"></i>Recent System Activity</h5>
+                    <button class="btn btn-sm btn-light rounded-pill px-3">View Full Log</button>
                 </div>
                 {% if recent_entities %}
                 <div class="table-responsive">
                     <table class="table modern-table mb-0">
                         <thead>
                             <tr>
-                                <th>Entity Name</th>
-                                <th>Type</th>
-                                <th>Date Added</th>
+                                <th class="ps-0">Entity Name</th>
+                                <th>Category</th>
+                                <th class="text-end pe-0">Registered</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for entity in recent_entities %}
                             <tr>
-                                <td>
-                                    <span class="fw-bold">{{ entity.name }}</span>
+                                <td class="ps-0">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bg-light rounded-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                            <i class="{% if entity.entity_type == 'agency' %}ri-hotel-line{% elif entity.entity_type == 'tvet' %}ri-graduation-cap-line{% else %}ri-building-line{% endif %} text-primary fs-5"></i>
+                                        </div>
+                                        <span class="fw-700 text-main">{{ entity.name }}</span>
+                                    </div>
                                 </td>
                                 <td>
-                                    <span
-                                        class="badge {% if entity.entity_type == 'agency' %}bg-primary{% elif entity.entity_type == 'tvet' %}bg-success{% else %}bg-info{% endif %} rounded-pill">
+                                    <span class="badge {% if entity.entity_type == 'agency' %}bg-primary-soft text-primary{% elif entity.entity_type == 'tvet' %}bg-success-soft text-success{% else %}bg-info-soft text-info{% endif %} rounded-pill px-3">
                                         {{ entity.get_entity_type_display }}
                                     </span>
                                 </td>
-                                <td class="text-muted small">
+                                <td class="text-end pe-0 text-muted small">
                                     {{ entity.created_at|date:"M d, Y" }}
                                 </td>
                             </tr>
@@ -167,44 +148,48 @@
                 </div>
                 {% else %}
                 <div class="text-center py-5">
-                    <i class="fas fa-inbox fa-3x text-light mb-3"></i>
-                    <p class="text-muted">No recent entities found.</p>
+                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="ri-inbox-line ri-2x text-muted"></i>
+                    </div>
+                    <h6 class="text-muted">No recent activity detected.</h6>
                 </div>
                 {% endif %}
             </div>
         </div>
 
         <!-- Latest Announcements Timeline -->
-        <div class="col-lg-5">
-            <div class="card h-100 border-0 shadow-sm p-4">
+        <div class="col-lg-4">
+            <div class="card h-100 border-0 shadow-sm p-4 glass-panel">
                 <div class="activity-title mb-4">
-                    <i class="ri-notification-3-line me-2 text-primary"></i> Announcements
+                    <i class="ri-notification-3-line me-2 text-primary"></i> Notifications Hub
                 </div>
                 {% if announcements %}
                 <div class="timeline">
                     {% for ann in announcements %}
                     <div class="timeline-item">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <h6 class="fw-bold mb-0">{{ ann.title }}</h6>
-                            <small class="text-muted">{{ ann.timestamp|date:"M d" }}</small>
+                            <h6 class="fw-800 mb-0">{{ ann.title }}</h6>
                         </div>
-                        <p class="text-muted small mb-2">{{ ann.description|truncatewords:20 }}</p>
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="bg-primary-soft text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 0.7rem; font-weight: bold;">
-                                {{ ann.posted_by.username|slice:":1"|upper }}
+                        <p class="text-muted small mb-3">{{ ann.description|truncatewords:15 }}</p>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 0.7rem; font-weight: bold;">
+                                    {{ ann.posted_by.username|slice:":1"|upper }}
+                                </div>
+                                <span class="text-secondary small fw-bold">{{ ann.posted_by.username }}</span>
                             </div>
-                            <span class="text-secondary small">{{ ann.posted_by.username }}</span>
+                            <small class="badge bg-light text-muted">{{ ann.timestamp|timesince }} ago</small>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
-                <div class="text-center mt-auto">
-                    <a href="{% url 'announcement_list' %}" class="btn btn-sm btn-light rounded-pill px-4 hover-scale">View All</a>
+                <div class="text-center mt-4 pt-3 border-top">
+                    <a href="{% url 'announcement_list' %}" class="btn btn-sm btn-link text-decoration-none fw-bold">See All Announcements <i class="ri-arrow-right-line ms-1"></i></a>
                 </div>
                 {% else %}
                 <div class="text-center py-5">
                     <i class="ri-notification-off-line ri-3x text-light mb-3"></i>
-                    <p class="text-muted">No announcements to display.</p>
+                    <p class="text-muted">No active announcements.</p>
                 </div>
                 {% endif %}
             </div>

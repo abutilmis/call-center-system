@@ -102,25 +102,25 @@
                     <i class="ri-menu-line"></i>
                 </button>
                 <div class="logo-container">
+                    <div class="logo-shimmer"></div>
                     <img src="{% static 'images/logo.png' %}" alt="Logo" class="header-logo-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/100x30?text=CCMS'">
-                    <div class="logo-glow"></div>
                 </div>
             </div>
             <div class="header-actions">
-                <div class="theme-switch">
+                <div class="theme-switch" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Toggle Theme">
                     <input type="checkbox" id="themeSwitchInput" class="theme-switch-input">
                     <label for="themeSwitchInput" class="theme-switch-label">
                         <i class="ri-sun-line theme-switch-icon theme-switch-icon--sun"></i>
                         <i class="ri-moon-line theme-switch-icon theme-switch-icon--moon"></i>
                     </label>
                 </div>
-                <div class="header-action-btn header-action-profile">
-                    <span class="header-avatar"><i class="ri-user-3-line"></i></span>
-                    <span class="header-username">{{ user.username }}</span>
+                <div class="header-action-btn header-action-profile" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Profile: {{ user.username }}">
+                    <span class="header-avatar">{{ user.username|slice:":1"|upper }}</span>
+                    <span class="header-username d-none d-md-block">{{ user.username }}</span>
                 </div>
                 <form method="post" action="{% url 'logout' %}" style="display: inline;">
                     {% csrf_token %}
-                    <button type="submit" class="header-action-btn header-action-logout" title="Logout">
+                    <button type="submit" class="header-action-btn header-action-logout" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Logout">
                         <i class="ri-logout-box-r-line"></i>
                     </button>
                 </form>
