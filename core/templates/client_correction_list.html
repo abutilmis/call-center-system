@@ -57,7 +57,7 @@
                                 </div>
                             </td>
                             {% endif %}
-                            <td class="{% if request.user.role != 'supervisor' %}ps-4{% endif %} fw-bold text-primary">REQ-{{ req.request_id|stringformat:"04d" }}</td>
+                            <td class="{% if request.user.role != 'supervisor' %}ps-4{% endif %} fw-bold text-primary">#{{ forloop.counter }}</td>
                             <td>
                                 <i class="{% if req.correction_type == 'name' %}ri-user-settings-line text-primary{% elif req.correction_type == 'dob' %}ri-calendar-event-line text-info{% else %}ri-genderless-line text-warning{% endif %} me-2"></i>
                                 {{ req.get_correction_type_display }}

@@ -288,10 +288,7 @@ def entity_delete(request, pk):
 # Client Correction Requests
 @login_required
 def client_correction_list(request):
-    if request.user.role == 'supervisor':
-        corrections = ClientCorrection.objects.all().order_by('-created_at')
-    else:
-        corrections = ClientCorrection.objects.filter(agent=request.user).order_by('-created_at')
+    corrections = ClientCorrection.objects.all().order_by('-created_at')
         
     query = request.GET.get('q', '')
     if query:
@@ -396,9 +393,7 @@ def client_correction_bulk_action(request):
 @login_required
 def client_correction_detail(request, pk):
     correction = get_object_or_404(ClientCorrection, pk=pk)
-    if request.user.role != 'supervisor' and correction.agent != request.user:
-        messages.error(request, "You don't have permission to view this request.")
-        return redirect('client_correction_list')
+    # Visibility is now open to all authenticated agents/supervisors
         
     summary = build_summary(correction)
     return render(request, 'client_correction_detail.html', {'correction': correction, 'telegram_summary': summary})
@@ -470,15 +465,27 @@ def client_correction_delete(request, pk):
 @login_required
 def check_duplicate_request(request):
     phone = request.GET.get('phone', '').strip()
+    labor_id = request.GET.get('labor_id', '').strip()
+    
+    query = Q()
     if phone:
-        pending = ClientCorrection.objects.filter(phone=phone, status='pending').first()
-        if pending:
-            return JsonResponse({
-                'exists': True,
-                'request_id': pending.request_id,
-                'correction_type': pending.get_correction_type_display(),
-                'created_at': pending.created_at.strftime("%Y-%m-%d %H:%M:%S")
-            })
+        query |= Q(phone=phone)
+    if labor_id:
+        query |= Q(labor_id=labor_id)
+        
+    if not phone and not labor_id:
+        return JsonResponse({'exists': False})
+        
+    duplicate = ClientCorrection.objects.filter(query).filter(status__in=['pending', 'approved']).first()
+    
+    if duplicate:
+        return JsonResponse({
+            'exists': True,
+            'status': duplicate.status,
+            'client_name': duplicate.client_name,
+            'type': duplicate.get_correction_type_display(),
+            'date': duplicate.created_at.strftime('%Y-%m-%d')
+        })
     return JsonResponse({'exists': False})
 
 # Knowledge Base
