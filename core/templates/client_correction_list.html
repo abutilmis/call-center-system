@@ -49,11 +49,11 @@
                         <td>{{ req.labor_id|default:"—" }}</td>
                         <td>
                             {% if req.status == 'pending' %}
-                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2"><i class="ri-time-line me-1"></i>Pending</span>
+                            <span class="badge bg-warning-soft text-warning rounded-pill px-3 py-2 fs-6 shadow-sm"><i class="ri-time-line me-1"></i>Pending</span>
                             {% elif req.status == 'approved' %}
-                            <span class="badge bg-success rounded-pill px-3 py-2"><i class="ri-checkbox-circle-line me-1"></i>Approved</span>
+                            <span class="badge bg-success-soft text-success rounded-pill px-3 py-2 fs-6 shadow-sm"><i class="ri-checkbox-circle-line me-1"></i>Approved</span>
                             {% else %}
-                            <span class="badge bg-danger rounded-pill px-3 py-2"><i class="ri-close-circle-line me-1"></i>Rejected</span>
+                            <span class="badge bg-danger-soft text-danger rounded-pill px-3 py-2 fs-6 shadow-sm"><i class="ri-close-circle-line me-1"></i>Rejected</span>
                             {% endif %}
                         </td>
                         <td>{{ req.agent.username }}</td>
