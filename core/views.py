@@ -2,17 +2,22 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
-from .models import Entity, ClientCorrection, KnowledgeBase, Announcement
-from .forms import EntityForm, KnowledgeBaseForm, AnnouncementForm, AgentRegistrationForm, OSSCUploadForm
-from django.db import connection
-from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import json
+import traceback
+import logging
+import pandas as pd
+from .models import Entity, ClientCorrection, KnowledgeBase, Announcement
+from .forms import EntityForm, KnowledgeBaseForm, AnnouncementForm, AgentRegistrationForm, OSSCUploadForm, AgencyUploadForm, TVETUploadForm
+from django.db import connection
 from .utils import build_summary, build_status_update
 from .telegram import send_telegram_message
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 def supervisor_required(view_func):
     """Decorator to restrict access to supervisors only."""
@@ -22,6 +27,70 @@ def supervisor_required(view_func):
             return redirect('dashboard')
         return view_func(request, *args, **kwargs)
     return wrapper
+
+@csrf_exempt
+def telegram_webhook(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            # Handle reaction updates
+            if 'message_reaction' in data:
+                reaction = data['message_reaction']
+                message_id = str(reaction.get('message_id'))
+                new_reactions = reaction.get('new_reaction', [])
+                
+                if not new_reactions:
+                    return HttpResponse("No reaction.")
+
+                emoji = new_reactions[0].get('emoji')
+                status = None
+                if emoji == '👍':
+                    status = 'approved'
+                elif emoji == '👎':
+                    status = 'rejected'
+                
+                if status:
+                    correction = ClientCorrection.objects.filter(telegram_message_id=message_id, status='pending').first()
+                    if correction:
+                        correction.status = status
+                        correction.supervisor_comment = f"Processed via Telegram reaction ({emoji})"
+                        correction.save()
+                        
+                        # Reply to the message for confirmation
+                        confirm_text = f"✅ Request #{correction.request_id} has been {status.upper()} via reaction."
+                        send_telegram_message(confirm_text, reply_to_message_id=message_id)
+                        
+            return HttpResponse("OK")
+        except Exception as e:
+            logger.error(f"Webhook error: {e}")
+            return HttpResponse(status=400)
+    return HttpResponse("This endpoint is for Telegram Webhooks.")
+
+@login_required
+def check_duplicate_request(request):
+    phone = request.GET.get('phone', '').strip()
+    labor_id = request.GET.get('labor_id', '').strip()
+    
+    query = Q()
+    if phone:
+        query |= Q(phone=phone)
+    if labor_id:
+        query |= Q(labor_id=labor_id)
+        
+    if not phone and not labor_id:
+        return JsonResponse({'exists': False})
+        
+    duplicate = ClientCorrection.objects.filter(query).filter(status__in=['pending', 'approved']).first()
+    
+    if duplicate:
+        return JsonResponse({
+            'exists': True,
+            'status': duplicate.status,
+            'client_name': duplicate.client_name,
+            'type': duplicate.get_correction_type_display(),
+            'date': duplicate.created_at.strftime('%Y-%m-%d')
+        })
+    return JsonResponse({'exists': False})
 
 @login_required
 def dashboard(request):
@@ -37,13 +106,6 @@ def dashboard(request):
     }
     return render(request, 'dashboard.html', context)
 
-from django.http import JsonResponse
-from django.db.models import Q
-
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .models import Entity
 import traceback
 from django.http import HttpResponse
 
@@ -289,14 +351,37 @@ def entity_delete(request, pk):
 @login_required
 def client_correction_list(request):
     corrections = ClientCorrection.objects.all().order_by('-created_at')
-        
+    
+    # Filters
+    q_type = request.GET.get('type', '')
+    q_agent = request.GET.get('agent_id', '')
+    q_date = request.GET.get('date', '')
     query = request.GET.get('q', '')
+    
+    if q_type:
+        corrections = corrections.filter(correction_type=q_type)
+    if q_agent:
+        corrections = corrections.filter(agent_id=q_agent)
+    if q_date:
+        corrections = corrections.filter(created_at__date=q_date)
     if query:
         corrections = corrections.filter(
-            Q(phone__icontains=query) | Q(labor_id__icontains=query)
+            Q(phone__icontains=query) | Q(labor_id__icontains=query) | Q(client_name__icontains=query)
         )
         
-    return render(request, 'client_correction_list.html', {'corrections': corrections, 'query': query})
+    agents = User.objects.filter(client_corrections__isnull=False).distinct()
+    correction_types = ClientCorrection.TYPE_CHOICES
+    
+    context = {
+        'corrections': corrections,
+        'query': query,
+        'q_type': q_type,
+        'q_agent': q_agent,
+        'q_date': q_date,
+        'agents': agents,
+        'correction_types': correction_types,
+    }
+    return render(request, 'client_correction_list.html', context)
 
 @login_required
 def client_correction_create(request):
@@ -520,6 +605,20 @@ def knowledge_create(request):
     else:
         form = KnowledgeBaseForm()
     return render(request, 'knowledge_form.html', {'form': form, 'title': 'Add Knowledge Entry'})
+
+@login_required
+@supervisor_required
+def knowledge_update(request, pk):
+    entry = get_object_or_404(KnowledgeBase, pk=pk)
+    if request.method == 'POST':
+        form = KnowledgeBaseForm(request.POST, instance=entry)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Knowledge entry updated.")
+            return redirect('knowledge_list')
+    else:
+        form = KnowledgeBaseForm(instance=entry)
+    return render(request, 'knowledge_form.html', {'form': form, 'title': 'Edit Knowledge Entry', 'is_edit': True})
 
 # Announcements
 @login_required
