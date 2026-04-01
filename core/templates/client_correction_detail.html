@@ -39,7 +39,7 @@
                 <h6 class="fw-bold text-danger text-uppercase mb-3">Current Data (Old)</h6>
                 <table class="table table-borderless table-sm">
                     {% for key, val in correction.old_data.items %}
-                    <tr><td class="text-muted w-50">{{ key|title }}:</td><td class="fw-bold">{{ val }}</td></tr>
+                    <tr><td class="text-muted w-50">{{ key|cut:"_"|title }}:</td><td class="fw-bold">{{ val }}</td></tr>
                     {% empty %}
                     <tr><td class="text-muted">N/A</td></tr>
                     {% endfor %}
@@ -49,7 +49,7 @@
                 <h6 class="fw-bold text-success text-uppercase mb-3">Corrected Data (New)</h6>
                 <table class="table table-borderless table-sm">
                     {% for key, val in correction.new_data.items %}
-                    <tr><td class="text-muted w-50">{{ key|title }}:</td><td class="fw-bold">{{ val }}</td></tr>
+                    <tr><td class="text-muted w-50">{{ key|cut:"_"|title }}:</td><td class="fw-bold">{{ val }}</td></tr>
                     {% empty %}
                     <tr><td class="text-muted">N/A</td></tr>
                     {% endfor %}

@@ -8,15 +8,19 @@ def build_summary(correction):
     summary = ""
     
     if correction.correction_type == 'name':
-        old_fn = correction.old_data.get('first_name', '')
-        old_fan = correction.old_data.get('father_name', '')
-        old_gn = correction.old_data.get('grandfather_name', '')
-        old_name = " ".join(filter(None, [old_fn, old_fan, old_gn]))
+        old_name = correction.old_data.get('full_name')
+        if not old_name:
+            old_fn = correction.old_data.get('first_name', '')
+            old_fan = correction.old_data.get('father_name', '')
+            old_gn = correction.old_data.get('grandfather_name', '')
+            old_name = " ".join(filter(None, [old_fn, old_fan, old_gn]))
 
-        new_fn = correction.new_data.get('first_name', '')
-        new_fan = correction.new_data.get('father_name', '')
-        new_gn = correction.new_data.get('grandfather_name', '')
-        new_name = " ".join(filter(None, [new_fn, new_fan, new_gn]))
+        new_name = correction.new_data.get('full_name')
+        if not new_name:
+            new_fn = correction.new_data.get('first_name', '')
+            new_fan = correction.new_data.get('father_name', '')
+            new_gn = correction.new_data.get('grandfather_name', '')
+            new_name = " ".join(filter(None, [new_fn, new_fan, new_gn]))
 
         raw_summary = f"❌{old_name}\n✅{new_name}\n{correction.labor_id}\n{correction.phone}"
         summary = "\n".join([line for line in raw_summary.split("\n") if line.strip()])
