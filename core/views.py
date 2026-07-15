@@ -620,6 +620,16 @@ def knowledge_update(request, pk):
         form = KnowledgeBaseForm(instance=entry)
     return render(request, 'knowledge_form.html', {'form': form, 'title': 'Edit Knowledge Entry', 'is_edit': True})
 
+@login_required
+@supervisor_required
+def knowledge_delete(request, pk):
+    entry = get_object_or_404(KnowledgeBase, pk=pk)
+    if request.method == 'POST':
+        entry.delete()
+        messages.success(request, "Knowledge entry deleted.")
+        return redirect('knowledge_list')
+    return render(request, 'knowledge_form.html', {'form': None, 'title': 'Delete Knowledge Entry', 'is_delete': True, 'entry': entry})
+
 # Announcements
 @login_required
 def announcement_list(request):
@@ -640,6 +650,24 @@ def announcement_create(request):
     else:
         form = AnnouncementForm()
     return render(request, 'announcement_form.html', {'form': form, 'title': 'Create Announcement'})
+
+@login_required
+@supervisor_required
+def announcement_update(request, pk):
+    announcement = get_object_or_404(Announcement, pk=pk)
+    if request.user.role != 'supervisor' and announcement.posted_by != request.user:
+        messages.error(request, "You don't have permission to edit this announcement.")
+        return redirect('announcement_list')
+        
+    if request.method == 'POST':
+        form = AnnouncementForm(request.POST, instance=announcement)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Announcement updated.")
+            return redirect('announcement_list')
+    else:
+        form = AnnouncementForm(instance=announcement)
+    return render(request, 'announcement_form.html', {'form': form, 'title': 'Edit Announcement', 'is_edit': True})
 
 @login_required
 def announcement_delete(request, pk):

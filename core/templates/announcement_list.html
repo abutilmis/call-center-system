@@ -15,7 +15,10 @@
                 <div class="d-flex justify-content-between mb-2">
                     <h5 class="fw-bold text-primary">{{ ann.title }}</h5>
                     {% if user == ann.posted_by or user.role == 'supervisor' %}
-                    <a href="{% url 'announcement_delete' ann.pk %}" class="text-danger" title="Delete Announcement"><i class="fas fa-trash"></i></a>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'announcement_update' ann.pk %}" class="text-warning" title="Edit Announcement"><i class="fas fa-edit"></i></a>
+                        <a href="{% url 'announcement_delete' ann.pk %}" class="text-danger" title="Delete Announcement"><i class="fas fa-trash"></i></a>
+                    </div>
                     {% endif %}
                 </div>
                 <p class="text-muted small mb-3"><i class="fas fa-calendar-alt me-2"></i>Posted by {{ ann.posted_by.username }} on {{ ann.timestamp|date:"M d, Y H:i" }}</p>
